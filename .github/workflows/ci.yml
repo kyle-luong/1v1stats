@@ -1,0 +1,66 @@
+# CI Pipeline
+# Runs tests, type checking, and linting on every push and pull request
+
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+      - run: npm ci
+      - run: npm run type-check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"
+          NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "test"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+      - run: npm ci
+      - run: npm run test
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/test"

@@ -1,0 +1,99 @@
+/**
+ * Video Router
+ * tRPC procedures for video submission, listing, and status tracking
+ */
+
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { VideoStatus } from "@prisma/client";
+
+export const videoRouter = createTRPCRouter({
+  /**
+   * Get all videos with optional filters
+   */
+  getAll: publicProcedure
+    .input(
+      z.object({
+        channel: z.string().optional(),
+        status: z.nativeEnum(VideoStatus).optional(),
+        limit: z.number().min(1).max(100).default(20),
+      }).optional()
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.video.findMany({
+        where: {
+          channelName: input?.channel,
+          status: input?.status,
+        },
+        take: input?.limit ?? 20,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          submittedBy: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          game: {
+            include: {
+              player1: true,
+              player2: true,
+            },
+          },
+        },
+      });
+    }),
+
+  /**
+   * Get video by ID
+   */
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.video.findUnique({
+        where: { id: input.id },
+        include: {
+          submittedBy: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          game: {
+            include: {
+              player1: true,
+              player2: true,
+              stats: true,
+            },
+          },
+        },
+      });
+    }),
+
+  /**
+   * Submit a new video (requires authentication)
+   */
+  submit: protectedProcedure
+    .input(
+      z.object({
+        url: z.string().url(),
+        youtubeId: z.string(),
+        title: z.string(),
+        channelName: z.string(),
+        thumbnailUrl: z.string().url().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // TODO: Get actual user ID from session
+      const userId = "temp-user-id";
+
+      return ctx.db.video.create({
+        data: {
+          ...input,
+          submittedById: userId,
+        },
+      });
+    }),
+});

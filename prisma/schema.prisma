@@ -1,0 +1,147 @@
+// Prisma Database Schema
+// Defines all database models for the Isostat basketball statistics platform
+//
+// Models:
+// - User: User accounts with authentication
+// - Player: Basketball players (can appear in multiple games)
+// - Video: YouTube videos containing 1v1 games
+// - Game: Individual 1v1 matchups between two players
+// - Stat: Detailed basketball statistics for each player in each game
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  submittedVideos   Video[] @relation("VideoSubmitter")
+  favoritePlayerIds String[]
+
+  @@index([email])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Player {
+  id              String   @id @default(cuid())
+  name            String
+  instagramHandle String?
+  height          String? // e.g., "6'2\""
+  position        String? // Guard, Forward, etc.
+  location        String? // City, State
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  gamesAsPlayer1 Game[] @relation("Player1")
+  gamesAsPlayer2 Game[] @relation("Player2")
+  stats          Stat[]
+
+  @@index([name])
+}
+
+model Video {
+  id           String       @id @default(cuid())
+  youtubeId    String       @unique // e.g., "dQw4w9WgXcQ"
+  url          String
+  title        String
+  channelName  String // The Next Chapter, Ballislife, etc.
+  thumbnailUrl String?
+  uploadedAt   DateTime? // YouTube upload date
+  duration     Int? // seconds
+  status       VideoStatus @default(PENDING)
+  processedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  submittedById String
+  submittedBy   User   @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: Cascade)
+
+  // Relations
+  game Game?
+
+  @@index([channelName])
+  @@index([status])
+  @@index([submittedById])
+}
+
+enum VideoStatus {
+  PENDING // Submitted, awaiting processing
+  PROCESSING // Currently being analyzed
+  COMPLETED // Stats entered/extracted
+  FAILED // Processing failed
+}
+
+model Game {
+  id           String   @id @default(cuid())
+  videoId      String   @unique
+  player1Score Int
+  player2Score Int
+  winnerId     String // player1Id or player2Id
+  gameDate     DateTime @default(now())
+  location     String?
+  notes        String? // Optional context
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  video     Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  player1Id String
+  player1   Player @relation("Player1", fields: [player1Id], references: [id])
+  player2Id String
+  player2   Player @relation("Player2", fields: [player2Id], references: [id])
+
+  // Relations
+  stats Stat[]
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([gameDate])
+  @@index([videoId])
+}
+
+model Stat {
+  id     String @id @default(cuid())
+  gameId String
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
+  // Basketball stats
+  points                 Int @default(0)
+  fieldGoalsMade         Int @default(0)
+  fieldGoalsAttempted    Int @default(0)
+  threePointersMade      Int @default(0)
+  threePointersAttempted Int @default(0)
+  freeThrowsMade         Int @default(0)
+  freeThrowsAttempted    Int @default(0)
+  rebounds               Int @default(0)
+  assists                Int @default(0)
+  steals                 Int @default(0)
+  blocks                 Int @default(0)
+  turnovers              Int @default(0)
+  fouls                  Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([gameId, playerId])
+  @@index([playerId])
+  @@index([gameId])
+}
