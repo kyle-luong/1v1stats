@@ -12,10 +12,12 @@ export const playerRouter = createTRPCRouter({
    */
   getAll: publicProcedure
     .input(
-      z.object({
-        search: z.string().optional(),
-        limit: z.number().min(1).max(100).default(50),
-      }).optional()
+      z
+        .object({
+          search: z.string().optional(),
+          limit: z.number().min(1).max(100).default(50),
+        })
+        .optional()
     )
     .query(async ({ ctx, input }) => {
       return ctx.db.player.findMany({
@@ -37,32 +39,30 @@ export const playerRouter = createTRPCRouter({
   /**
    * Get player by ID with full stats
    */
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const player = await ctx.db.player.findUnique({
-        where: { id: input.id },
-        include: {
-          stats: {
-            include: {
-              game: {
-                include: {
-                  video: true,
-                  player1: true,
-                  player2: true,
-                },
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const player = await ctx.db.player.findUnique({
+      where: { id: input.id },
+      include: {
+        stats: {
+          include: {
+            game: {
+              include: {
+                video: true,
+                player1: true,
+                player2: true,
               },
             },
           },
         },
-      });
+      },
+    });
 
-      if (!player) {
-        throw new Error("Player not found");
-      }
+    if (!player) {
+      throw new Error("Player not found");
+    }
 
-      return player;
-    }),
+    return player;
+  }),
 
   /**
    * Create a new player

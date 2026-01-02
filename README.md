@@ -77,12 +77,14 @@ isostat/
 ## Current progress
 
 ### Phase 1 (MVP)
+
 - Database schema implemented
 - tRPC API with type-safe procedures
 - Basic UI with player listing
 - CI/CD pipeline (lint, type-check, test, build)
 
 ### Future work
+
 - Player profile pages with career stats
 - Video submission and YouTube metadata scraping
 - Manual game stat entry

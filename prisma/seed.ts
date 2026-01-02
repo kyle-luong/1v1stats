@@ -14,7 +14,8 @@ async function main() {
   const rulesets = [
     {
       name: "Official 1v1 - 30pts",
-      description: "Official competitive 1v1 format: 30 points to win, refereed, one-possession (no offensive rebounds), ~4 dribble limit",
+      description:
+        "Official competitive 1v1 format: 30 points to win, refereed, one-possession (no offensive rebounds), ~4 dribble limit",
       scoringTarget: 30,
       shotValues: "2s-3s",
       possessionType: "one-possession",
@@ -23,7 +24,8 @@ async function main() {
     },
     {
       name: "Official 1v1 - 21pts",
-      description: "Official competitive 1v1 format: 21 points to win, refereed, one-possession (no offensive rebounds), ~4 dribble limit",
+      description:
+        "Official competitive 1v1 format: 21 points to win, refereed, one-possession (no offensive rebounds), ~4 dribble limit",
       scoringTarget: 21,
       shotValues: "2s-3s",
       possessionType: "one-possession",

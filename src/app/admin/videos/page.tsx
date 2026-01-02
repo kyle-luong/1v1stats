@@ -49,14 +49,14 @@ export default function AdminVideosPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold">Video Moderation</h1>
             <p className="text-muted-foreground">Review submitted videos</p>
           </div>
           <Link
             href="/admin/dashboard"
-            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80"
+            className="rounded-md bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
           >
             Back to Dashboard
           </Link>
@@ -68,7 +68,7 @@ export default function AdminVideosPage() {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-md font-medium transition ${
+              className={`rounded-md px-4 py-2 font-medium transition ${
                 statusFilter === status
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -80,23 +80,21 @@ export default function AdminVideosPage() {
         </div>
 
         {/* Videos List */}
-        <div className="bg-card border rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg border bg-card">
           {videos.isLoading ? (
             <div className="p-8 text-center text-muted-foreground">Loading...</div>
           ) : videos.data?.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              No videos found
-            </div>
+            <div className="p-8 text-center text-muted-foreground">No videos found</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-secondary/50">
                   <tr>
-                    <th className="text-left p-4">Video</th>
-                    <th className="text-left p-4">Details</th>
-                    <th className="text-left p-4">Status</th>
-                    <th className="text-left p-4">Submission</th>
-                    <th className="text-right p-4">Actions</th>
+                    <th className="p-4 text-left">Video</th>
+                    <th className="p-4 text-left">Details</th>
+                    <th className="p-4 text-left">Status</th>
+                    <th className="p-4 text-left">Submission</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -115,16 +113,14 @@ export default function AdminVideosPage() {
                       </td>
                       <td className="p-4">
                         <div className="font-semibold">{video.title}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {video.channelName}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-sm text-muted-foreground">{video.channelName}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">
                           {new Date(video.createdAt).toLocaleDateString()}
                         </div>
                       </td>
                       <td className="p-4">
                         <span
-                          className={`px-2 py-1 text-xs rounded ${getStatusBadge(video.status)}`}
+                          className={`rounded px-2 py-1 text-xs ${getStatusBadge(video.status)}`}
                         >
                           {video.status}
                         </span>
@@ -134,18 +130,18 @@ export default function AdminVideosPage() {
                           <div className="text-sm">{video.submitterEmail}</div>
                         )}
                         {video.submitterNote && (
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="mt-1 text-xs text-muted-foreground">
                             "{video.submitterNote}"
                           </div>
                         )}
                       </td>
                       <td className="p-4 text-right">
-                        <div className="flex gap-2 justify-end">
+                        <div className="flex justify-end gap-2">
                           <a
                             href={video.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80"
+                            className="rounded bg-secondary px-3 py-1 text-sm text-secondary-foreground hover:bg-secondary/80"
                           >
                             Watch
                           </a>
@@ -154,14 +150,14 @@ export default function AdminVideosPage() {
                               <button
                                 onClick={() => handleApprove(video.id)}
                                 disabled={updateStatus.isPending}
-                                className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                                className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleReject(video.id)}
                                 disabled={updateStatus.isPending}
-                                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                                className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"
                               >
                                 Reject
                               </button>

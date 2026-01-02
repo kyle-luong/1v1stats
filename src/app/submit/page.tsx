@@ -69,24 +69,24 @@ export default function SubmitVideoPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex items-center justify-center">
-        <div className="max-w-2xl w-full mx-4">
-          <div className="bg-card border rounded-lg p-8 space-y-6 text-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-secondary">
+        <div className="mx-4 w-full max-w-2xl">
+          <div className="space-y-6 rounded-lg border bg-card p-8 text-center">
             <div className="text-6xl">✓</div>
             <h1 className="text-3xl font-bold">Thank You!</h1>
             <p className="text-muted-foreground">
               Your video has been submitted and will be reviewed by our team.
             </p>
-            <div className="flex gap-4 justify-center pt-4">
+            <div className="flex justify-center gap-4 pt-4">
               <button
                 onClick={() => setSuccess(false)}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition"
+                className="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 Submit Another Video
               </button>
               <Link
                 href="/videos"
-                className="px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition"
+                className="rounded-lg bg-secondary px-6 py-3 font-medium text-secondary-foreground transition hover:bg-secondary/80"
               >
                 View All Videos
               </Link>
@@ -100,15 +100,15 @@ export default function SubmitVideoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <div className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">Submit a 1v1 Video</h1>
+        <div className="mx-auto max-w-2xl">
+          <div className="mb-8 text-center">
+            <h1 className="mb-2 text-4xl font-bold">Submit a 1v1 Video</h1>
             <p className="text-muted-foreground">
               Help us build the largest database of 1v1 basketball games
             </p>
           </div>
 
-          <div className="bg-card border rounded-lg p-8">
+          <div className="rounded-lg border bg-card p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label htmlFor="url" className="text-sm font-medium">
@@ -205,7 +205,7 @@ export default function SubmitVideoPage() {
               </div>
 
               {error && (
-                <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                   {error}
                 </div>
               )}
@@ -213,7 +213,7 @@ export default function SubmitVideoPage() {
               <button
                 type="submit"
                 disabled={submitMutation.isPending}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-10 w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitMutation.isPending ? "Submitting..." : "Submit Video"}
               </button>

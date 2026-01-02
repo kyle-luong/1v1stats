@@ -13,11 +13,13 @@ export const videoRouter = createTRPCRouter({
    */
   getAll: publicProcedure
     .input(
-      z.object({
-        channel: z.string().optional(),
-        status: z.nativeEnum(VideoStatus).optional(),
-        limit: z.number().min(1).max(100).default(20),
-      }).optional()
+      z
+        .object({
+          channel: z.string().optional(),
+          status: z.nativeEnum(VideoStatus).optional(),
+          limit: z.number().min(1).max(100).default(20),
+        })
+        .optional()
     )
     .query(async ({ ctx, input }) => {
       return ctx.db.video.findMany({
@@ -43,22 +45,20 @@ export const videoRouter = createTRPCRouter({
   /**
    * Get video by ID
    */
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.video.findUnique({
-        where: { id: input.id },
-        include: {
-          game: {
-            include: {
-              player1: true,
-              player2: true,
-              stats: true,
-            },
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    return ctx.db.video.findUnique({
+      where: { id: input.id },
+      include: {
+        game: {
+          include: {
+            player1: true,
+            player2: true,
+            stats: true,
           },
         },
-      });
-    }),
+      },
+    });
+  }),
 
   /**
    * Submit a new video (authentication optional, links to user if logged in)

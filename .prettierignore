@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Environment files
+.env
+.env.local
+.env*.local
+
+# Database
+prisma/migrations
+
+# Testing
+coverage
+
+# Misc
+.DS_Store
+*.pem
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Generated files
+next-env.d.ts

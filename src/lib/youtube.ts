@@ -16,24 +16,24 @@ export function extractYoutubeId(url: string): string | null {
     const urlObj = new URL(url);
 
     // Handle youtu.be short links
-    if (urlObj.hostname === 'youtu.be') {
+    if (urlObj.hostname === "youtu.be") {
       return urlObj.pathname.slice(1); // Remove leading slash
     }
 
     // Handle youtube.com links
-    if (urlObj.hostname === 'www.youtube.com' || urlObj.hostname === 'youtube.com') {
+    if (urlObj.hostname === "www.youtube.com" || urlObj.hostname === "youtube.com") {
       // Standard watch URLs
-      const vParam = urlObj.searchParams.get('v');
+      const vParam = urlObj.searchParams.get("v");
       if (vParam) return vParam;
 
       // Embed URLs (/embed/VIDEO_ID)
-      if (urlObj.pathname.startsWith('/embed/')) {
-        return urlObj.pathname.split('/')[2];
+      if (urlObj.pathname.startsWith("/embed/")) {
+        return urlObj.pathname.split("/")[2];
       }
 
       // Short URLs (/v/VIDEO_ID)
-      if (urlObj.pathname.startsWith('/v/')) {
-        return urlObj.pathname.split('/')[2];
+      if (urlObj.pathname.startsWith("/v/")) {
+        return urlObj.pathname.split("/")[2];
       }
     }
 

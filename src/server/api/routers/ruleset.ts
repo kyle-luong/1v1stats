@@ -21,11 +21,9 @@ export const rulesetRouter = createTRPCRouter({
   /**
    * Get ruleset by ID
    */
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.ruleset.findUnique({
-        where: { id: input.id },
-      });
-    }),
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    return ctx.db.ruleset.findUnique({
+      where: { id: input.id },
+    });
+  }),
 });

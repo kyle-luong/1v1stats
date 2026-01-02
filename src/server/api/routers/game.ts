@@ -43,20 +43,18 @@ export const gameRouter = createTRPCRouter({
   /**
    * Get game by ID with full details
    */
-  getById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      return ctx.db.game.findUnique({
-        where: { id: input.id },
-        include: {
-          video: true,
-          player1: true,
-          player2: true,
-          stats: true,
-          ruleset: true,
-        },
-      });
-    }),
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    return ctx.db.game.findUnique({
+      where: { id: input.id },
+      include: {
+        video: true,
+        player1: true,
+        player2: true,
+        stats: true,
+        ruleset: true,
+      },
+    });
+  }),
 
   /**
    * Create a new game with stats (admin only)
@@ -79,10 +77,7 @@ export const gameRouter = createTRPCRouter({
       const { player1Stats, player2Stats, ...gameData } = input;
 
       // Determine winner
-      const winnerId =
-        input.player1Score > input.player2Score
-          ? input.player1Id
-          : input.player2Id;
+      const winnerId = input.player1Score > input.player2Score ? input.player1Id : input.player2Id;
 
       // Create game and stats in a transaction
       return ctx.db.game.create({

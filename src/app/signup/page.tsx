@@ -50,13 +50,11 @@ export default function SignupPage() {
       }
 
       // Create user record in database
-      const { error: dbError } = await supabase
-        .from("User")
-        .insert({
-          id: authData.user.id,
-          email: authData.user.email!,
-          name: name || null,
-        });
+      const { error: dbError } = await supabase.from("User").insert({
+        id: authData.user.id,
+        email: authData.user.email!,
+        name: name || null,
+      });
 
       if (dbError) {
         console.error("Error creating user record:", dbError);
@@ -73,14 +71,12 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex items-center justify-center">
-      <div className="max-w-md w-full mx-4">
-        <div className="bg-card border rounded-lg p-8 space-y-6">
-          <div className="text-center space-y-2">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-secondary">
+      <div className="mx-4 w-full max-w-md">
+        <div className="space-y-6 rounded-lg border bg-card p-8">
+          <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Create Account</h1>
-            <p className="text-sm text-muted-foreground">
-              Join the Isostat community
-            </p>
+            <p className="text-sm text-muted-foreground">Join the Isostat community</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,13 +127,11 @@ export default function SignupPage() {
                 minLength={6}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
-              <p className="text-xs text-muted-foreground">
-                Must be at least 6 characters
-              </p>
+              <p className="text-xs text-muted-foreground">Must be at least 6 characters</p>
             </div>
 
             {error && (
-              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
+              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -145,7 +139,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-10 w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </button>
