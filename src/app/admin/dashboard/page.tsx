@@ -32,6 +32,7 @@ export default function AdminDashboardPage() {
             <p className="text-muted-foreground">Isostat Management</p>
           </div>
           <button
+            type="button"
             onClick={handleLogout}
             className="rounded-md bg-destructive px-4 py-2 text-destructive-foreground hover:bg-destructive/90"
           >

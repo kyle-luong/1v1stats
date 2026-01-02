@@ -79,6 +79,7 @@ export default function SubmitVideoPage() {
             </p>
             <div className="flex justify-center gap-4 pt-4">
               <button
+                type="button"
                 onClick={() => setSuccess(false)}
                 className="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground transition hover:bg-primary/90"
               >

@@ -26,8 +26,8 @@ export const gameRouter = createTRPCRouter({
   /**
    * Get all games
    */
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.game.findMany({
+  getAll: publicProcedure.query(async ({ ctx }) =>
+    ctx.db.game.findMany({
       include: {
         video: true,
         player1: true,
@@ -37,14 +37,14 @@ export const gameRouter = createTRPCRouter({
       orderBy: {
         gameDate: "desc",
       },
-    });
-  }),
+    })
+  ),
 
   /**
    * Get game by ID with full details
    */
-  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    return ctx.db.game.findUnique({
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) =>
+    ctx.db.game.findUnique({
       where: { id: input.id },
       include: {
         video: true,
@@ -53,8 +53,8 @@ export const gameRouter = createTRPCRouter({
         stats: true,
         ruleset: true,
       },
-    });
-  }),
+    })
+  ),
 
   /**
    * Create a new game with stats (admin only)

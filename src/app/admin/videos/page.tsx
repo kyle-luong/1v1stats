@@ -31,7 +31,8 @@ export default function AdminVideosPage() {
   };
 
   const handleReject = async (id: string) => {
-    if (confirm("Are you sure you want to reject this video?")) {
+    // eslint-disable-next-line no-alert
+    if (window.confirm("Are you sure you want to reject this video?")) {
       await updateStatus.mutateAsync({ id, status: VideoStatus.FAILED });
     }
   };
@@ -67,6 +68,7 @@ export default function AdminVideosPage() {
           {(["ALL", "PENDING", "PROCESSING", "COMPLETED", "FAILED"] as const).map((status) => (
             <button
               key={status}
+              type="button"
               onClick={() => setStatusFilter(status)}
               className={`rounded-md px-4 py-2 font-medium transition ${
                 statusFilter === status
@@ -81,11 +83,13 @@ export default function AdminVideosPage() {
 
         {/* Videos List */}
         <div className="overflow-hidden rounded-lg border bg-card">
-          {videos.isLoading ? (
+          {videos.isLoading && (
             <div className="p-8 text-center text-muted-foreground">Loading...</div>
-          ) : videos.data?.length === 0 ? (
+          )}
+          {!videos.isLoading && videos.data?.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">No videos found</div>
-          ) : (
+          )}
+          {!videos.isLoading && videos.data && videos.data.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-secondary/50">
@@ -148,6 +152,7 @@ export default function AdminVideosPage() {
                           {video.status === VideoStatus.PENDING && (
                             <>
                               <button
+                                type="button"
                                 onClick={() => handleApprove(video.id)}
                                 disabled={updateStatus.isPending}
                                 className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
@@ -155,6 +160,7 @@ export default function AdminVideosPage() {
                                 Approve
                               </button>
                               <button
+                                type="button"
                                 onClick={() => handleReject(video.id)}
                                 disabled={updateStatus.isPending}
                                 className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700 disabled:opacity-50"

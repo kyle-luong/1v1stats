@@ -19,8 +19,8 @@ export const playerRouter = createTRPCRouter({
         })
         .optional()
     )
-    .query(async ({ ctx, input }) => {
-      return ctx.db.player.findMany({
+    .query(async ({ ctx, input }) =>
+      ctx.db.player.findMany({
         where: input?.search
           ? {
               name: {
@@ -33,8 +33,8 @@ export const playerRouter = createTRPCRouter({
         orderBy: {
           name: "asc",
         },
-      });
-    }),
+      })
+    ),
 
   /**
    * Get player by ID with full stats
@@ -78,11 +78,11 @@ export const playerRouter = createTRPCRouter({
         imageUrl: z.string().url().optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.player.create({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.player.create({
         data: input,
-      });
-    }),
+      })
+    ),
 
   /**
    * Update player information

@@ -4,8 +4,8 @@
  */
 
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 import { VideoStatus } from "@prisma/client";
+import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
 export const videoRouter = createTRPCRouter({
   /**
@@ -21,8 +21,8 @@ export const videoRouter = createTRPCRouter({
         })
         .optional()
     )
-    .query(async ({ ctx, input }) => {
-      return ctx.db.video.findMany({
+    .query(async ({ ctx, input }) =>
+      ctx.db.video.findMany({
         where: {
           channelName: input?.channel,
           status: input?.status,
@@ -39,14 +39,14 @@ export const videoRouter = createTRPCRouter({
             },
           },
         },
-      });
-    }),
+      })
+    ),
 
   /**
    * Get video by ID
    */
-  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    return ctx.db.video.findUnique({
+  getById: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) =>
+    ctx.db.video.findUnique({
       where: { id: input.id },
       include: {
         game: {
@@ -57,8 +57,8 @@ export const videoRouter = createTRPCRouter({
           },
         },
       },
-    });
-  }),
+    })
+  ),
 
   /**
    * Submit a new video (authentication optional, links to user if logged in)
@@ -75,14 +75,14 @@ export const videoRouter = createTRPCRouter({
         submitterNote: z.string().max(500).optional(),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.video.create({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.video.create({
         data: {
           ...input,
           submittedById: ctx.user?.id, // Link to user if logged in
         },
-      });
-    }),
+      })
+    ),
 
   /**
    * Update video status (admin only)
@@ -94,12 +94,12 @@ export const videoRouter = createTRPCRouter({
         status: z.nativeEnum(VideoStatus),
       })
     )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.video.update({
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.video.update({
         where: { id: input.id },
         data: { status: input.status },
-      });
-    }),
+      })
+    ),
 
   /**
    * Get video stats (admin only)
