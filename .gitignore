@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Claude Code artifacts
 .claude/
+
+# MCP configuration (local only)
+.mcp.json

@@ -13,6 +13,11 @@ const ADMIN_SESSION_COOKIE = "admin_session";
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
+  // Skip middleware for API routes (they handle their own auth)
+  if (path.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   const isAdminRoute = ADMIN_ROUTES.some((route) => path.startsWith(route));
   const isLoginPage = path === ADMIN_LOGIN_PATH;
 
