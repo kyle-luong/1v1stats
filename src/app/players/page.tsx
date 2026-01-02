@@ -8,18 +8,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { calculateWinLoss, calculateTotalPoints, calculatePPG } from "@/lib/utils";
+import { PlayerCardSkeleton } from "@/components/ui/player-card-skeleton";
 
 export default function PlayersPage() {
   const [search, setSearch] = useState("");
-  const { data: players, isLoading } = trpc.player.getAll.useQuery({
+  const { data: players, isLoading, error } = trpc.player.getAll.useQuery({
     search: search || undefined,
     limit: 100,
   });
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="mb-4 text-4xl font-bold">Players</h1>
@@ -33,8 +36,32 @@ export default function PlayersPage() {
           />
         </div>
 
-        {isLoading && <div className="text-muted-foreground">Loading players...</div>}
-        {!isLoading && players && players.length > 0 && (
+        {error && (
+          <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
+            <h2 className="mb-2 text-lg font-semibold text-destructive">
+              Failed to Load Players
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              There was an error loading players. Please try refreshing the page.
+            </p>
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={`skeleton-${i}`} className="animate-pulse rounded-lg border bg-card">
+                <div className="aspect-square bg-muted" />
+                <div className="p-4 space-y-2">
+                  <div className="h-6 bg-muted rounded" />
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && !error && players && players.length > 0 && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {players.map((player) => {
               const allGames = [...player.gamesAsPlayer1, ...player.gamesAsPlayer2];
@@ -107,7 +134,7 @@ export default function PlayersPage() {
             })}
           </div>
         )}
-        {!isLoading && (!players || players.length === 0) && (
+        {!isLoading && !error && (!players || players.length === 0) && (
           <div className="py-12 text-center text-muted-foreground">
             {search && "No players found matching your search."}
             {!search && "No players found."}
