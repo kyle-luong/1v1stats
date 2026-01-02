@@ -8,6 +8,7 @@ import { playerRouter } from "./routers/player";
 import { videoRouter } from "./routers/video";
 import { gameRouter } from "./routers/game";
 import { statRouter } from "./routers/stat";
+import { rulesetRouter } from "./routers/ruleset";
 
 /**
  * Main application router
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   video: videoRouter,
   game: gameRouter,
   stat: statRouter,
+  ruleset: rulesetRouter,
 });
 
 export type AppRouter = typeof appRouter;

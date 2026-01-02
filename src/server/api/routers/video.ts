@@ -6,6 +6,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 import { VideoStatus } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 
 export const videoRouter = createTRPCRouter({
   /**
@@ -80,4 +81,44 @@ export const videoRouter = createTRPCRouter({
         data: input,
       });
     }),
+
+  /**
+   * Update video status (admin only)
+   */
+  updateStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.nativeEnum(VideoStatus),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.video.update({
+        where: { id: input.id },
+        data: { status: input.status },
+      });
+    }),
+
+  /**
+   * Get video stats (admin only)
+   */
+  getStats: protectedProcedure.query(async ({ ctx }) => {
+    const [total, pending, processing, completed, failed] = await Promise.all([
+      ctx.db.video.count(),
+      ctx.db.video.count({ where: { status: VideoStatus.PENDING } }),
+      ctx.db.video.count({ where: { status: VideoStatus.PROCESSING } }),
+      ctx.db.video.count({ where: { status: VideoStatus.COMPLETED } }),
+      ctx.db.video.count({ where: { status: VideoStatus.FAILED } }),
+    ]);
+
+    return {
+      total,
+      byStatus: {
+        pending,
+        processing,
+        completed,
+        failed,
+      },
+    };
+  }),
 });

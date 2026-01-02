@@ -19,6 +19,7 @@ datasource db {
 model Player {
   id              String   @id @default(cuid())
   name            String
+  aliases         String[] // YouTube name variations
   instagramHandle String?
   height          String? // e.g., "6'2\""
   position        String? // Guard, Forward, etc.
@@ -69,16 +70,24 @@ enum VideoStatus {
 }
 
 model Game {
-  id           String   @id @default(cuid())
-  videoId      String   @unique
+  id           String     @id @default(cuid())
+  videoId      String     @unique
   player1Score Int
   player2Score Int
   winnerId     String // player1Id or player2Id
-  gameDate     DateTime @default(now())
+  gameDate     DateTime   @default(now())
   location     String?
   notes        String? // Optional context
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+
+  // Phase 1 extensions for roadmap
+  rulesetId    String?
+  ruleset      Ruleset?   @relation(fields: [rulesetId], references: [id])
+  isOfficial   Boolean    @default(false) // Official competitive game vs pickup
+  source       GameSource @default(SUBMITTED) // How this game was added
+  courtType    CourtType  @default(UNKNOWN)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   video     Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
   player1Id String
@@ -93,8 +102,38 @@ model Game {
   @@index([player2Id])
   @@index([gameDate])
   @@index([videoId])
+  @@index([rulesetId])
+  @@index([isOfficial])
 }
 
+// Ruleset model for Phase 1
+// Defines game rules and formats (official 1v1, pickup, etc.)
+model Ruleset {
+  id             String   @id @default(cuid())
+  name           String   @unique // e.g., "Official 1v1 - 30pts"
+  description    String?
+
+  // Scoring rules
+  scoringTarget  Int      @default(21) // 21, 30, etc.
+  shotValues     String   @default("1s-2s") // "1s-2s" or "2s-3s"
+
+  // Game format
+  possessionType String   @default("one-possession") // "one-possession" or "make-it-take-it"
+  isRefereed     Boolean  @default(false)
+  dribbleLimit   Int?     // e.g., 4 dribbles max
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  games Game[]
+
+  @@index([name])
+}
+
+// Phase 1: Keep Stat model for backward compatibility
+// NOTE: Phase 3 will migrate to event-based stat computation
+// This model will be deprecated after event-based tracking is implemented
 model Stat {
   id     String @id @default(cuid())
   gameId String
@@ -124,4 +163,16 @@ model Stat {
   @@unique([gameId, playerId])
   @@index([playerId])
   @@index([gameId])
+}
+
+// Enums
+enum GameSource {
+  SUBMITTED // User-submitted
+  SCRAPED   // Auto-scraped from YouTube (Phase 1.5)
+}
+
+enum CourtType {
+  INDOOR
+  OUTDOOR
+  UNKNOWN
 }
