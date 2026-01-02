@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run lint
 
   type-check:
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run type-check
 
   build:
@@ -43,7 +43,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run build
         env:
           DATABASE_URL: "postgresql://test:test@localhost:5432/test"
@@ -60,7 +60,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run test
         env:
           DATABASE_URL: "postgresql://test:test@localhost:5432/test"
