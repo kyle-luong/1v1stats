@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { trpc } from "@/lib/trpc/Provider";
 import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PlayerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -17,8 +18,57 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading player...</div>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header Skeleton */}
+          <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-start">
+            <Skeleton className="h-48 w-48 flex-shrink-0 rounded-lg" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-10 w-64" />
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-5 w-32" />
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="mb-8">
+            <Skeleton className="mb-4 h-8 w-40" />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
+              {[...Array(5)].map((_, i) => (
+                <div key={`stat-skeleton-${i}`} className="rounded-lg border bg-card p-4">
+                  <Skeleton className="mb-2 h-4 w-20" />
+                  <Skeleton className="h-9 w-16" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Games Table Skeleton */}
+          <div>
+            <Skeleton className="mb-4 h-8 w-48" />
+            <div className="overflow-hidden rounded-lg border">
+              <div className="bg-muted p-4">
+                <div className="flex gap-4">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+              </div>
+              <div className="divide-y">
+                {[...Array(5)].map((_, i) => (
+                  <div key={`game-skeleton-${i}`} className="flex gap-4 p-4">
+                    <Skeleton className="h-5 w-20" />
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-12" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

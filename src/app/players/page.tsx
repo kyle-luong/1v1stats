@@ -11,7 +11,6 @@ import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { calculateWinLoss, calculateTotalPoints, calculatePPG } from "@/lib/utils";
-import { PlayerCardSkeleton } from "@/components/ui/player-card-skeleton";
 
 export default function PlayersPage() {
   const [search, setSearch] = useState("");

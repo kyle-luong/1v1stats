@@ -8,13 +8,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { VideoStatus } from "@prisma/client";
+import { VideoCardSkeleton } from "@/components/ui/video-card-skeleton";
 
 export default function VideosPage() {
   const [filter, setFilter] = useState<"all" | "with-games">("all");
 
-  const { data: videos, isLoading } = trpc.video.getAll.useQuery({
+  const { data: videos, isLoading, error } = trpc.video.getAll.useQuery({
     status: VideoStatus.COMPLETED,
     limit: 100,
   });
@@ -28,6 +30,7 @@ export default function VideosPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-bold">Videos</h1>
@@ -58,8 +61,27 @@ export default function VideosPage() {
           </div>
         </div>
 
-        {isLoading && <div className="text-muted-foreground">Loading videos...</div>}
-        {!isLoading && filteredVideos && filteredVideos.length > 0 && (
+        {error && (
+          <div className="rounded-lg border border-destructive bg-destructive/10 p-6 text-center">
+            <h2 className="mb-2 text-lg font-semibold text-destructive">
+              Failed to Load Videos
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              There was an error loading videos. Please try refreshing the page.
+            </p>
+          </div>
+        )}
+
+        {isLoading && (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {/* eslint-disable-next-line react/no-array-index-key */}
+            {[...Array(8)].map((_, i) => (
+              <VideoCardSkeleton key={`video-skeleton-${i}`} />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && !error && filteredVideos && filteredVideos.length > 0 && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredVideos.map((video) => (
               <Link
@@ -117,7 +139,7 @@ export default function VideosPage() {
             ))}
           </div>
         )}
-        {!isLoading && (!filteredVideos || filteredVideos.length === 0) && (
+        {!isLoading && !error && (!filteredVideos || filteredVideos.length === 0) && (
           <div className="py-12 text-center text-muted-foreground">
             No videos found. Check back soon!
           </div>

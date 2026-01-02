@@ -9,6 +9,7 @@ import { use } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc/Provider";
 import { formatDate } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function GameDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -16,8 +17,48 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading game...</div>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          {/* Video Embed Skeleton */}
+          <div className="mb-8">
+            <Skeleton className="aspect-video w-full rounded-lg" />
+            <Skeleton className="mt-4 h-8 w-3/4" />
+            <Skeleton className="mt-2 h-5 w-1/3" />
+          </div>
+
+          {/* Player Cards Skeleton */}
+          <div className="mb-8 grid gap-6 md:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={`player-skeleton-${i}`} className="rounded-lg border bg-card p-6">
+                <Skeleton className="mb-4 h-8 w-48" />
+                <div className="mb-4 flex justify-center">
+                  <Skeleton className="h-20 w-20" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Game Details Skeleton */}
+          <div className="mb-8 rounded-lg border bg-card p-6">
+            <Skeleton className="mb-4 h-7 w-40" />
+            <div className="grid gap-4 md:grid-cols-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+
+          {/* Stats Table Skeleton */}
+          <div className="rounded-lg border bg-card p-6">
+            <Skeleton className="mb-4 h-7 w-32" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
