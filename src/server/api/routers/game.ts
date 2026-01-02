@@ -4,6 +4,7 @@
  */
 
 import { z } from "zod";
+import { VideoStatus } from "@prisma/client";
 import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
 const statInputSchema = z.object({
@@ -69,6 +70,10 @@ export const gameRouter = createTRPCRouter({
         player2Score: z.number().int().min(0),
         player1Stats: statInputSchema,
         player2Stats: statInputSchema,
+        rulesetId: z.string().optional(),
+        isOfficial: z.boolean().optional(),
+        courtType: z.enum(["INDOOR", "OUTDOOR", "UNKNOWN"]).optional(),
+        gameDate: z.date().optional(),
         location: z.string().optional(),
         notes: z.string().optional(),
       })
@@ -79,30 +84,43 @@ export const gameRouter = createTRPCRouter({
       // Determine winner
       const winnerId = input.player1Score > input.player2Score ? input.player1Id : input.player2Id;
 
-      // Create game and stats in a transaction
-      return ctx.db.game.create({
-        data: {
-          ...gameData,
-          winnerId,
-          stats: {
-            create: [
-              {
-                playerId: input.player1Id,
-                ...player1Stats,
-              },
-              {
-                playerId: input.player2Id,
-                ...player2Stats,
-              },
-            ],
+      // Create game and stats, then update video status in a transaction
+      const game = await ctx.db.$transaction(async (tx) => {
+        // Create the game with stats
+        const newGame = await tx.game.create({
+          data: {
+            ...gameData,
+            winnerId,
+            stats: {
+              create: [
+                {
+                  playerId: input.player1Id,
+                  ...player1Stats,
+                },
+                {
+                  playerId: input.player2Id,
+                  ...player2Stats,
+                },
+              ],
+            },
           },
-        },
-        include: {
-          player1: true,
-          player2: true,
-          stats: true,
-          video: true,
-        },
+          include: {
+            player1: true,
+            player2: true,
+            stats: true,
+            video: true,
+          },
+        });
+
+        // Update video status to COMPLETED
+        await tx.video.update({
+          where: { id: input.videoId },
+          data: { status: VideoStatus.COMPLETED },
+        });
+
+        return newGame;
       });
+
+      return game;
     }),
 });

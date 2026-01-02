@@ -33,6 +33,28 @@ export const playerRouter = createTRPCRouter({
         orderBy: {
           name: "asc",
         },
+        include: {
+          gamesAsPlayer1: {
+            select: {
+              id: true,
+              winnerId: true,
+              player1Id: true,
+              player2Id: true,
+              player1Score: true,
+              player2Score: true,
+            },
+          },
+          gamesAsPlayer2: {
+            select: {
+              id: true,
+              winnerId: true,
+              player1Id: true,
+              player2Id: true,
+              player1Score: true,
+              player2Score: true,
+            },
+          },
+        },
       })
     ),
 
@@ -54,6 +76,18 @@ export const playerRouter = createTRPCRouter({
             },
           },
         },
+        gamesAsPlayer1: {
+          include: {
+            player1: true,
+            player2: true,
+          },
+        },
+        gamesAsPlayer2: {
+          include: {
+            player1: true,
+            player2: true,
+          },
+        },
       },
     });
 
@@ -61,7 +95,20 @@ export const playerRouter = createTRPCRouter({
       throw new Error("Player not found");
     }
 
-    return player;
+    // Calculate basic stats
+    const totalGames = player.gamesAsPlayer1.length + player.gamesAsPlayer2.length;
+    const wins = [
+      ...player.gamesAsPlayer1.filter((game) => game.winnerId === player.id),
+      ...player.gamesAsPlayer2.filter((game) => game.winnerId === player.id),
+    ].length;
+    const losses = totalGames - wins;
+
+    return {
+      ...player,
+      gamesPlayed: totalGames,
+      wins,
+      losses,
+    };
   }),
 
   /**
@@ -71,18 +118,23 @@ export const playerRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
+        aliases: z.array(z.string()).default([]),
         instagramHandle: z.string().optional(),
         height: z.string().optional(),
         position: z.string().optional(),
         location: z.string().optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().url().optional().or(z.literal("")),
       })
     )
-    .mutation(async ({ ctx, input }) =>
-      ctx.db.player.create({
-        data: input,
-      })
-    ),
+    .mutation(async ({ ctx, input }) => {
+      const { imageUrl, ...data } = input;
+      return ctx.db.player.create({
+        data: {
+          ...data,
+          imageUrl: imageUrl || undefined,
+        },
+      });
+    }),
 
   /**
    * Update player information
@@ -92,18 +144,61 @@ export const playerRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string().min(1).optional(),
+        aliases: z.array(z.string()).optional(),
         instagramHandle: z.string().optional(),
         height: z.string().optional(),
         position: z.string().optional(),
         location: z.string().optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().url().optional().or(z.literal("")),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
+      const { id, imageUrl, ...data } = input;
       return ctx.db.player.update({
         where: { id },
-        data,
+        data: {
+          ...data,
+          imageUrl: imageUrl === "" ? null : imageUrl,
+        },
       });
+    }),
+
+  /**
+   * Delete a player
+   * Note: This will cascade delete all related games and stats
+   */
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // Check if player has games
+      const player = await ctx.db.player.findUnique({
+        where: { id: input.id },
+        include: {
+          _count: {
+            select: {
+              gamesAsPlayer1: true,
+              gamesAsPlayer2: true,
+              stats: true,
+            },
+          },
+        },
+      });
+
+      if (!player) {
+        throw new Error("Player not found");
+      }
+
+      const totalGames = player._count.gamesAsPlayer1 + player._count.gamesAsPlayer2;
+
+      // Delete the player (cascade will handle related records)
+      await ctx.db.player.delete({
+        where: { id: input.id },
+      });
+
+      return {
+        success: true,
+        deletedGames: totalGames,
+        deletedStats: player._count.stats,
+      };
     }),
 });

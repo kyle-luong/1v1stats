@@ -41,3 +41,40 @@ export function calculatePPG(totalPoints: number, gamesPlayed: number): string {
   if (gamesPlayed === 0) return "0.0";
   return (totalPoints / gamesPlayed).toFixed(1);
 }
+
+/**
+ * Calculates win/loss record for a player
+ * Phase 3 will compute from events
+ */
+export function calculateWinLoss(
+  games: Array<{ winnerId: string; player1Id: string; player2Id: string }>,
+  playerId: string
+): { wins: number; losses: number } {
+  const wins = games.filter((game) => game.winnerId === playerId).length;
+  const losses = games.filter(
+    (game) =>
+      (game.player1Id === playerId || game.player2Id === playerId) &&
+      game.winnerId !== playerId
+  ).length;
+  return { wins, losses };
+}
+
+/**
+ * Calculates total points scored by a player across all games
+ * Phase 3 will compute from events
+ */
+export function calculateTotalPoints(
+  games: Array<{
+    player1Id: string;
+    player2Id: string;
+    player1Score: number;
+    player2Score: number;
+  }>,
+  playerId: string
+): number {
+  return games.reduce((total, game) => {
+    if (game.player1Id === playerId) return total + game.player1Score;
+    if (game.player2Id === playerId) return total + game.player2Score;
+    return total;
+  }, 0);
+}

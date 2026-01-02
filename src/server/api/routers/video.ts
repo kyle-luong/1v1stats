@@ -123,4 +123,22 @@ export const videoRouter = createTRPCRouter({
       },
     };
   }),
+
+  /**
+   * Get videos without games (admin only)
+   * Used for game entry to show only videos that need processing
+   */
+  getVideosWithoutGames: adminProcedure.query(async ({ ctx }) =>
+    ctx.db.video.findMany({
+      where: {
+        game: null,
+        status: {
+          in: [VideoStatus.PENDING, VideoStatus.PROCESSING],
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    })
+  ),
 });
