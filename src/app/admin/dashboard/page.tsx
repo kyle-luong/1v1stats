@@ -8,6 +8,7 @@
 import { trpc } from "@/lib/trpc/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -16,8 +17,10 @@ export default function AdminDashboardPage() {
   const games = trpc.game.getAll.useQuery();
 
   const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
   };
 
   return (

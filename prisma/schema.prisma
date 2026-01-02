@@ -16,6 +16,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User model for authentication and community features
+// Uses Supabase Auth for authentication
+model User {
+  id        String   @id // Supabase Auth UUID
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  isAdmin   Boolean  @default(false)
+
+  // Reputation system (Phase 3 - Labeling)
+  reputationScore Int @default(0)
+  isTrustedLabeler Boolean @default(false)
+  eventsLabeledCount Int @default(0)
+  eventsVerifiedCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  submittedVideos Video[] @relation("VideoSubmitter")
+
+  @@index([email])
+  @@index([isAdmin])
+  @@index([isTrustedLabeler])
+}
+
 model Player {
   id              String   @id @default(cuid())
   name            String
@@ -48,9 +74,11 @@ model Video {
   status       VideoStatus @default(PENDING)
   processedAt  DateTime?
 
-  // Optional submission tracking (no auth required)
-  submitterEmail String? // Optional contact email
-  submitterNote  String? // Optional context: "saw this on The Next Chapter"
+  // Submission tracking
+  submittedById  String? // Optional: links to User if logged in
+  submittedBy    User?   @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  submitterEmail String? // Fallback for anonymous submissions
+  submitterNote  String? // Optional context
 
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -60,6 +88,7 @@ model Video {
 
   @@index([channelName])
   @@index([status])
+  @@index([submittedById])
 }
 
 enum VideoStatus {

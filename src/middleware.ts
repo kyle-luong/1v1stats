@@ -1,46 +1,41 @@
 /**
  * Next.js Middleware
- * Handles simple admin authentication via session token
+ * Handles Supabase authentication and route protection
  */
 
 import { type NextRequest, NextResponse } from "next/server";
-import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { updateSession } from "@/lib/supabase/middleware";
 
 const ADMIN_ROUTES = ["/admin"];
-const ADMIN_LOGIN_PATH = "/admin/login";
-const ADMIN_SESSION_COOKIE = "admin_session";
+const AUTH_ROUTES = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
+  const { supabaseResponse, user } = await updateSession(request);
   const path = request.nextUrl.pathname;
 
-  // Skip middleware for API routes (they handle their own auth)
-  if (path.startsWith("/api/")) {
-    return NextResponse.next();
-  }
-
   const isAdminRoute = ADMIN_ROUTES.some((route) => path.startsWith(route));
-  const isLoginPage = path === ADMIN_LOGIN_PATH;
+  const isAuthRoute = AUTH_ROUTES.some((route) => path.startsWith(route));
 
-  // Allow login page access
-  if (isLoginPage) {
-    return NextResponse.next();
+  // Redirect to login if accessing admin route without auth
+  if (isAdminRoute && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirect", path);
+    return NextResponse.redirect(url);
   }
 
-  // Check admin authentication
-  if (isAdminRoute) {
-    const sessionToken = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  // For admin routes, check if user has admin flag
+  // We'll validate isAdmin in the database when they access admin pages
+  // (can't do DB queries in middleware)
 
-    // Validate session token using isAdminAuthenticated()
-    // This checks if token exists in the in-memory Set
-    if (!isAdminAuthenticated(sessionToken)) {
-      const url = request.nextUrl.clone();
-      url.pathname = ADMIN_LOGIN_PATH;
-      url.searchParams.set("redirect", path);
-      return NextResponse.redirect(url);
-    }
+  // Redirect to home if accessing auth routes while logged in
+  if (isAuthRoute && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {

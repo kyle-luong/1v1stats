@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 import { VideoStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 
@@ -62,7 +62,7 @@ export const videoRouter = createTRPCRouter({
     }),
 
   /**
-   * Submit a new video (open submission, no authentication required)
+   * Submit a new video (authentication optional, links to user if logged in)
    */
   submit: publicProcedure
     .input(
@@ -78,14 +78,17 @@ export const videoRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.video.create({
-        data: input,
+        data: {
+          ...input,
+          submittedById: ctx.user?.id, // Link to user if logged in
+        },
       });
     }),
 
   /**
    * Update video status (admin only)
    */
-  updateStatus: protectedProcedure
+  updateStatus: adminProcedure
     .input(
       z.object({
         id: z.string(),
@@ -102,7 +105,7 @@ export const videoRouter = createTRPCRouter({
   /**
    * Get video stats (admin only)
    */
-  getStats: protectedProcedure.query(async ({ ctx }) => {
+  getStats: adminProcedure.query(async ({ ctx }) => {
     const [total, pending, processing, completed, failed] = await Promise.all([
       ctx.db.video.count(),
       ctx.db.video.count({ where: { status: VideoStatus.PENDING } }),

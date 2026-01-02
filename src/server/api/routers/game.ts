@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
 const statInputSchema = z.object({
   points: z.number().int().min(0),
@@ -59,9 +59,9 @@ export const gameRouter = createTRPCRouter({
     }),
 
   /**
-   * Create a new game with stats
+   * Create a new game with stats (admin only)
    */
-  createWithStats: protectedProcedure
+  createWithStats: adminProcedure
     .input(
       z.object({
         videoId: z.string(),

@@ -11,11 +11,20 @@ import { db } from "../db";
 
 /**
  * Creates context for each tRPC request
- * Includes database client and (future) user session
+ * Includes database client and user session from Supabase
  */
 export const createTRPCContext = async (opts: FetchCreateContextFnOptions) => {
+  // Import here to avoid Edge runtime issues
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return {
     db,
+    user,
     headers: opts.req.headers,
   };
 };
@@ -45,15 +54,43 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 /**
- * Protected procedure - requires authentication (to be implemented)
+ * Protected procedure - requires authentication
  */
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  // TODO: Add authentication check here
-  // For now, allow all requests
+  if (!ctx.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
   return next({
     ctx: {
       ...ctx,
-      // session: session,
+      user: ctx.user, // Now guaranteed to be non-null
+    },
+  });
+});
+
+/**
+ * Admin procedure - requires admin privileges
+ */
+export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  // Check if user is admin
+  const dbUser = await ctx.db.user.findUnique({
+    where: { id: ctx.user.id },
+    select: { isAdmin: true },
+  });
+
+  if (!dbUser?.isAdmin) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      user: ctx.user,
     },
   });
 });
