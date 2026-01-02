@@ -12,6 +12,15 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    server: {
+      deps: {
+        inline: [
+          // Fix ESM compatibility issues with jsdom dependencies
+          "@exodus/bytes",
+          "html-encoding-sniffer",
+        ],
+      },
+    },
   },
   resolve: {
     alias: {

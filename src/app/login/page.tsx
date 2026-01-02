@@ -41,7 +41,7 @@ function LoginForm() {
       const redirect = searchParams.get("redirect") || "/";
       router.push(redirect);
       router.refresh();
-    } catch (err) {
+    } catch (_err) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
     }

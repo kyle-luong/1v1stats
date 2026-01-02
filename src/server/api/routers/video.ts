@@ -6,7 +6,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 import { VideoStatus } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 
 export const videoRouter = createTRPCRouter({
   /**

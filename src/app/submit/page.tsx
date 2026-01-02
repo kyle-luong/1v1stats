@@ -6,13 +6,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { extractYoutubeId, getYoutubeThumbnail, isValidYoutubeUrl } from "@/lib/youtube";
 import Link from "next/link";
 
 export default function SubmitVideoPage() {
-  const router = useRouter();
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [channelName, setChannelName] = useState("");
@@ -64,7 +62,7 @@ export default function SubmitVideoPage() {
       setSubmitterEmail("");
       setSubmitterNote("");
       setTermsAccepted(false);
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to submit video. Please try again.");
     }
   };
