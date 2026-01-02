@@ -30,12 +30,6 @@ export const videoRouter = createTRPCRouter({
           createdAt: "desc",
         },
         include: {
-          submittedBy: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
           game: {
             include: {
               player1: true,
@@ -55,12 +49,6 @@ export const videoRouter = createTRPCRouter({
       return ctx.db.video.findUnique({
         where: { id: input.id },
         include: {
-          submittedBy: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
           game: {
             include: {
               player1: true,
@@ -73,9 +61,9 @@ export const videoRouter = createTRPCRouter({
     }),
 
   /**
-   * Submit a new video (requires authentication)
+   * Submit a new video (open submission, no authentication required)
    */
-  submit: protectedProcedure
+  submit: publicProcedure
     .input(
       z.object({
         url: z.string().url(),
@@ -83,17 +71,13 @@ export const videoRouter = createTRPCRouter({
         title: z.string(),
         channelName: z.string(),
         thumbnailUrl: z.string().url().optional(),
+        submitterEmail: z.string().email().optional(),
+        submitterNote: z.string().max(500).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // TODO: Get actual user ID from session
-      const userId = "temp-user-id";
-
       return ctx.db.video.create({
-        data: {
-          ...input,
-          submittedById: userId,
-        },
+        data: input,
       });
     }),
 });

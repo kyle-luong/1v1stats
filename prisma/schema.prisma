@@ -2,7 +2,6 @@
 // Defines all database models for the Isostat basketball statistics platform
 //
 // Models:
-// - User: User accounts with authentication
 // - Player: Basketball players (can appear in multiple games)
 // - Video: YouTube videos containing 1v1 games
 // - Game: Individual 1v1 matchups between two players
@@ -15,26 +14,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  submittedVideos   Video[] @relation("VideoSubmitter")
-  favoritePlayerIds String[]
-
-  @@index([email])
-}
-
-enum UserRole {
-  USER
-  ADMIN
 }
 
 model Player {
@@ -67,18 +46,19 @@ model Video {
   duration     Int? // seconds
   status       VideoStatus @default(PENDING)
   processedAt  DateTime?
+
+  // Optional submission tracking (no auth required)
+  submitterEmail String? // Optional contact email
+  submitterNote  String? // Optional context: "saw this on The Next Chapter"
+
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
-
-  submittedById String
-  submittedBy   User   @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: Cascade)
 
   // Relations
   game Game?
 
   @@index([channelName])
   @@index([status])
-  @@index([submittedById])
 }
 
 enum VideoStatus {
