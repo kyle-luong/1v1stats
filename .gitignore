@@ -42,3 +42,6 @@ next-env.d.ts
 
 # vitest
 .vitest
+
+# Claude Code artifacts
+.claude/
