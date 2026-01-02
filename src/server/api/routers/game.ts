@@ -24,6 +24,23 @@ const statInputSchema = z.object({
 
 export const gameRouter = createTRPCRouter({
   /**
+   * Get all games
+   */
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.game.findMany({
+      include: {
+        video: true,
+        player1: true,
+        player2: true,
+        ruleset: true,
+      },
+      orderBy: {
+        gameDate: "desc",
+      },
+    });
+  }),
+
+  /**
    * Get game by ID with full details
    */
   getById: publicProcedure
@@ -36,6 +53,7 @@ export const gameRouter = createTRPCRouter({
           player1: true,
           player2: true,
           stats: true,
+          ruleset: true,
         },
       });
     }),
