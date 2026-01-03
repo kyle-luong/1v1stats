@@ -69,7 +69,7 @@ async function main() {
     });
   }
 
-  console.log(`✓ Seeded ${rulesets.length} rulesets`);
+  console.log(`Seeded ${rulesets.length} rulesets`);
   console.log("Seeding complete!");
 }
 

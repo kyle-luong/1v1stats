@@ -104,7 +104,6 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <div className="rounded-lg border bg-card p-8 transition hover:shadow-lg">
-              <div className="mb-4 text-4xl">📊</div>
               <h3 className="mb-3 text-xl font-semibold">Player Profiles</h3>
               <p className="text-muted-foreground">
                 Comprehensive statistics for every player across all their games.
@@ -112,7 +111,6 @@ export default function HomePage() {
               </p>
             </div>
             <div className="rounded-lg border bg-card p-8 transition hover:shadow-lg">
-              <div className="mb-4 text-4xl">🎥</div>
               <h3 className="mb-3 text-xl font-semibold">Video Library</h3>
               <p className="text-muted-foreground">
                 Watch games from top channels like The Next Chapter and Ballislife.
@@ -120,7 +118,6 @@ export default function HomePage() {
               </p>
             </div>
             <div className="rounded-lg border bg-card p-8 transition hover:shadow-lg">
-              <div className="mb-4 text-4xl">🏆</div>
               <h3 className="mb-3 text-xl font-semibold">Leaderboards</h3>
               <p className="text-muted-foreground">
                 See who's dominating in points, assists, rebounds, and advanced
