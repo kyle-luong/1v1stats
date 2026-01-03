@@ -81,6 +81,16 @@ export const gameRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { player1Stats, player2Stats, ...gameData } = input;
 
+      // Validate that players are different
+      if (input.player1Id === input.player2Id) {
+        throw new Error("Cannot create a game with the same player twice");
+      }
+
+      // Validate that scores are not equal (ties not allowed)
+      if (input.player1Score === input.player2Score) {
+        throw new Error("Game cannot end in a tie. One player must win.");
+      }
+
       // Determine winner
       const winnerId = input.player1Score > input.player2Score ? input.player1Id : input.player2Id;
 

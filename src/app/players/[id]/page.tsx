@@ -8,6 +8,7 @@
 import { use } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           {/* Header Skeleton */}
           <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-start">
@@ -75,13 +77,16 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
 
   if (error || !player) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex min-h-[calc(100vh-64px)] items-center justify-center">
+          <div className="text-center">
           <h1 className="mb-2 text-2xl font-bold">Player Not Found</h1>
           <p className="text-muted-foreground">The player you are looking for does not exist.</p>
-          <Link href="/players" className="mt-4 inline-block text-primary hover:underline">
-            Back to Players
-          </Link>
+            <Link href="/players" className="mt-4 inline-block text-primary hover:underline">
+              Back to Players
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -100,6 +105,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-start">

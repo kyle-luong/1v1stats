@@ -48,8 +48,9 @@ export default function PlayersPage() {
 
         {isLoading && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {/* eslint-disable-next-line react/no-array-index-key */}
             {[...Array(8)].map((_, i) => (
-              <div key={`skeleton-${i}`} className="animate-pulse rounded-lg border bg-card">
+              <div key={`player-skeleton-${i}`} className="animate-pulse rounded-lg border bg-card">
                 <div className="aspect-square bg-muted" />
                 <div className="p-4 space-y-2">
                   <div className="h-6 bg-muted rounded" />

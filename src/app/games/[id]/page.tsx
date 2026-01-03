@@ -7,6 +7,7 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
