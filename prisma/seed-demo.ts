@@ -9,6 +9,7 @@ import { PrismaClient, CourtType, GameSource, VideoStatus } from "@prisma/client
 const prisma = new PrismaClient();
 
 async function main() {
+  // eslint-disable-next-line no-console
   console.log("Seeding demo data...");
 
   // First, ensure rulesets exist by querying them
@@ -123,19 +124,20 @@ async function main() {
     },
   ];
 
-  const createdPlayers = [];
-  for (const player of players) {
-    const created = await prisma.player.upsert({
-      where: { id: `demo-player-${player.name.toLowerCase().replace(/\s+/g, "-")}` },
-      update: {},
-      create: {
-        id: `demo-player-${player.name.toLowerCase().replace(/\s+/g, "-")}`,
-        ...player,
-      },
-    });
-    createdPlayers.push(created);
-  }
+  const createdPlayers = await Promise.all(
+    players.map((player) =>
+      prisma.player.upsert({
+        where: { id: `demo-player-${player.name.toLowerCase().replace(/\s+/g, "-")}` },
+        update: {},
+        create: {
+          id: `demo-player-${player.name.toLowerCase().replace(/\s+/g, "-")}`,
+          ...player,
+        },
+      })
+    )
+  );
 
+  // eslint-disable-next-line no-console
   console.log(`Seeded ${createdPlayers.length} players`);
 
   // Seed videos with realistic YouTube IDs from actual 1v1 basketball channels
@@ -214,16 +216,17 @@ async function main() {
     },
   ];
 
-  const createdVideos = [];
-  for (const video of videos) {
-    const created = await prisma.video.upsert({
-      where: { youtubeId: video.youtubeId },
-      update: {},
-      create: video,
-    });
-    createdVideos.push(created);
-  }
+  const createdVideos = await Promise.all(
+    videos.map((video) =>
+      prisma.video.upsert({
+        where: { youtubeId: video.youtubeId },
+        update: {},
+        create: video,
+      })
+    )
+  );
 
+  // eslint-disable-next-line no-console
   console.log(`Seeded ${createdVideos.length} videos`);
 
   // Seed games with varied scores, locations, and court types
@@ -350,16 +353,17 @@ async function main() {
     },
   ];
 
-  const createdGames = [];
-  for (const game of games) {
-    const created = await prisma.game.upsert({
-      where: { videoId: game.videoId },
-      update: {},
-      create: game,
-    });
-    createdGames.push(created);
-  }
+  const createdGames = await Promise.all(
+    games.map((game) =>
+      prisma.game.upsert({
+        where: { videoId: game.videoId },
+        update: {},
+        create: game,
+      })
+    )
+  );
 
+  // eslint-disable-next-line no-console
   console.log(`Seeded ${createdGames.length} games`);
 
   // Seed stats for each game with realistic basketball statistics
@@ -662,10 +666,10 @@ async function main() {
     ],
   ];
 
-  let statsCount = 0;
-  for (const gameStats of statsData) {
-    for (const stat of gameStats) {
-      await prisma.stat.upsert({
+  const allStats = statsData.flat();
+  await Promise.all(
+    allStats.map((stat) =>
+      prisma.stat.upsert({
         where: {
           gameId_playerId: {
             gameId: stat.gameId,
@@ -674,12 +678,13 @@ async function main() {
         },
         update: {},
         create: stat,
-      });
-      statsCount++;
-    }
-  }
+      })
+    )
+  );
 
-  console.log(`Seeded ${statsCount} stat records`);
+  // eslint-disable-next-line no-console
+  console.log(`Seeded ${allStats.length} stat records`);
+  // eslint-disable-next-line no-console
   console.log("Demo data seeding complete!");
 }
 
