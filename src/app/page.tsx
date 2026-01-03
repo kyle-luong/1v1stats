@@ -12,11 +12,14 @@ import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 
 export default function HomePage() {
-  const videoStats = trpc.video.getStats.useQuery();
+  const completedVideos = trpc.video.getAll.useQuery({
+    status: "COMPLETED" as const,
+    limit: 100
+  });
   const players = trpc.player.getAll.useQuery();
   const recentGames = trpc.game.getAll.useQuery();
 
-  const totalVideos = videoStats.data?.total || 0;
+  const totalVideos = completedVideos.data?.length || 0;
   const totalPlayers = players.data?.length || 0;
   const recentGamesList = recentGames.data?.slice(0, 5) || [];
 
