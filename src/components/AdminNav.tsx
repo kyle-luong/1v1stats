@@ -23,6 +23,11 @@ const adminLinks = [
     icon: "🎥",
   },
   {
+    href: "/admin/channels",
+    label: "Channels",
+    icon: "📺",
+  },
+  {
     href: "/admin/players",
     label: "Players",
     icon: "👤",
