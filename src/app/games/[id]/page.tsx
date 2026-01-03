@@ -11,6 +11,18 @@ import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VerificationStatus } from "@prisma/client";
+
+function getVerificationBadge(status: VerificationStatus) {
+  switch (status) {
+    case "VERIFIED":
+      return { label: "Verified", className: "bg-emerald-100 text-emerald-700" };
+    case "PARTIAL":
+      return { label: "Partial", className: "bg-orange-100 text-orange-700" };
+    default:
+      return null;
+  }
+}
 
 export default function GameDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -105,7 +117,18 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
                 className="h-full w-full"
               />
             </div>
-            <h1 className="mt-4 text-2xl font-bold">{game.video.title}</h1>
+            <div className="mt-4 flex items-center gap-3">
+              <h1 className="text-2xl font-bold">{game.video.title}</h1>
+              {getVerificationBadge(game.video.verificationStatus) && (
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    getVerificationBadge(game.video.verificationStatus)?.className
+                  }`}
+                >
+                  {getVerificationBadge(game.video.verificationStatus)?.label}
+                </span>
+              )}
+            </div>
             <p className="text-muted-foreground">{game.video.channelName}</p>
           </div>
         )}

@@ -10,8 +10,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
-import { VideoStatus } from "@prisma/client";
+import { VideoStatus, VerificationStatus } from "@prisma/client";
 import { VideoCardSkeleton } from "@/components/ui/video-card-skeleton";
+
+function getVerificationBadge(status: VerificationStatus) {
+  switch (status) {
+    case "VERIFIED":
+      return { label: "Verified", className: "bg-emerald-100 text-emerald-700" };
+    case "PARTIAL":
+      return { label: "Partial", className: "bg-orange-100 text-orange-700" };
+    default:
+      return null; // Don't show badge for unverified
+  }
+}
 
 export default function VideosPage() {
   const [filter, setFilter] = useState<"all" | "with-games">("all");
@@ -105,6 +116,18 @@ export default function VideosPage() {
                   ) : (
                     <div className="flex h-full items-center justify-center text-muted-foreground">
                       No Thumbnail
+                    </div>
+                  )}
+                  {/* Verification Badge */}
+                  {getVerificationBadge(video.verificationStatus) && (
+                    <div className="absolute right-2 top-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          getVerificationBadge(video.verificationStatus)?.className
+                        }`}
+                      >
+                        {getVerificationBadge(video.verificationStatus)?.label}
+                      </span>
                     </div>
                   )}
                 </div>

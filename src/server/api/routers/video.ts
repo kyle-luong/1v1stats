@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { VideoStatus } from "@prisma/client";
+import { VideoStatus, VerificationStatus } from "@prisma/client";
 import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
 export const videoRouter = createTRPCRouter({
@@ -17,6 +17,8 @@ export const videoRouter = createTRPCRouter({
         .object({
           channel: z.string().optional(),
           status: z.nativeEnum(VideoStatus).optional(),
+          verificationStatus: z.nativeEnum(VerificationStatus).optional(),
+          scrapedOnly: z.boolean().optional(),
           limit: z.number().min(1).max(100).default(20),
         })
         .optional()
@@ -26,6 +28,8 @@ export const videoRouter = createTRPCRouter({
         where: {
           channelName: input?.channel,
           status: input?.status,
+          verificationStatus: input?.verificationStatus,
+          scrapedAt: input?.scrapedOnly ? { not: null } : undefined,
         },
         take: input?.limit ?? 20,
         orderBy: {
@@ -38,6 +42,7 @@ export const videoRouter = createTRPCRouter({
               player2: true,
             },
           },
+          channel: true,
         },
       })
     ),
@@ -98,6 +103,23 @@ export const videoRouter = createTRPCRouter({
       ctx.db.video.update({
         where: { id: input.id },
         data: { status: input.status },
+      })
+    ),
+
+  /**
+   * Update video verification status (admin only)
+   */
+  updateVerificationStatus: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        verificationStatus: z.nativeEnum(VerificationStatus),
+      })
+    )
+    .mutation(async ({ ctx, input }) =>
+      ctx.db.video.update({
+        where: { id: input.id },
+        data: { verificationStatus: input.verificationStatus },
       })
     ),
 

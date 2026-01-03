@@ -6,6 +6,7 @@
 // - Video: YouTube videos containing 1v1 games
 // - Game: Individual 1v1 matchups between two players
 // - Stat: Detailed basketball statistics for each player in each game
+// - Channel: Whitelisted YouTube channels for automated scraping (Phase 1.5)
 
 generator client {
   provider = "prisma-client-js"
@@ -40,6 +41,28 @@ model User {
   @@index([email])
   @@index([isAdmin])
   @@index([isTrustedLabeler])
+}
+
+// Channel model for Phase 1.5 - Whitelisted Channel Scraping
+// Tracks YouTube channels approved for automated video scraping
+model Channel {
+  id               String    @id @default(cuid())
+  youtubeChannelId String    @unique // YouTube channel ID (UC...)
+  name             String
+  description      String?
+  thumbnailUrl     String?
+  subscriberCount  Int?
+  isWhitelisted    Boolean   @default(true)
+  scrapeFrequency  String    @default("daily") // daily, weekly, manual
+  lastScrapedAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  videos Video[]
+
+  @@index([isWhitelisted])
+  @@index([lastScrapedAt])
 }
 
 model Player {
@@ -80,6 +103,12 @@ model Video {
   submitterEmail String? // Fallback for anonymous submissions
   submitterNote  String? // Optional context
 
+  // Phase 1.5: Channel scraping fields
+  channelId          String? // Links to whitelisted Channel if scraped
+  channel            Channel? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  scrapedAt          DateTime? // When this video was auto-scraped
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
@@ -89,6 +118,8 @@ model Video {
   @@index([channelName])
   @@index([status])
   @@index([submittedById])
+  @@index([channelId])
+  @@index([verificationStatus])
 }
 
 enum VideoStatus {
@@ -96,6 +127,13 @@ enum VideoStatus {
   PROCESSING // Currently being analyzed
   COMPLETED // Stats entered/extracted
   FAILED // Processing failed
+}
+
+// Phase 1.5: Verification status for data quality tracking
+enum VerificationStatus {
+  UNVERIFIED // Scraped or submitted, not yet reviewed
+  PARTIAL    // Admin viewed but not fully verified
+  VERIFIED   // Admin confirmed as valid 1v1 game
 }
 
 model Game {
