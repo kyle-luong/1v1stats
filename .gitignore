@@ -27,8 +27,9 @@ yarn-error.log*
 .env*.local
 .env
 
-# local documentation
-*.local.md
+# local files and directories
+*.local
+*.local.*
 
 # vercel
 .vercel
@@ -42,9 +43,3 @@ next-env.d.ts
 
 # vitest
 .vitest
-
-# Claude Code artifacts
-.claude/
-
-# MCP configuration (local only)
-.mcp.json
