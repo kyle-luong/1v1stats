@@ -19,6 +19,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
+        <Navbar />
         <div className="container mx-auto px-4 py-8">
           {/* Video Embed Skeleton */}
           <div className="mb-8">
@@ -28,6 +29,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
           </div>
 
           {/* Player Cards Skeleton */}
+          {/* eslint-disable react/no-array-index-key */}
           <div className="mb-8 grid gap-6 md:grid-cols-2">
             {Array.from({ length: 2 }).map((_, i) => (
               <div key={`player-skeleton-${i}`} className="rounded-lg border bg-card p-6">
@@ -43,6 +45,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             ))}
           </div>
+          {/* eslint-enable react/no-array-index-key */}
 
           {/* Game Details Skeleton */}
           <div className="mb-8 rounded-lg border bg-card p-6">
@@ -66,13 +69,16 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   if (error || !game) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex min-h-[calc(100vh-64px)] items-center justify-center">
+          <div className="text-center">
           <h1 className="mb-2 text-2xl font-bold">Game Not Found</h1>
-          <p className="text-muted-foreground">The game you are looking for does not exist.</p>
-          <Link href="/videos" className="mt-4 inline-block text-primary hover:underline">
-            Back to Videos
-          </Link>
+            <p className="text-muted-foreground">The game you are looking for does not exist.</p>
+            <Link href="/videos" className="mt-4 inline-block text-primary hover:underline">
+              Back to Videos
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -83,6 +89,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-8">
         {/* YouTube Embed */}
         {game.video && (

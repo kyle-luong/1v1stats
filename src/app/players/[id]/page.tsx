@@ -36,6 +36,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Stats Cards Skeleton */}
+          {/* eslint-disable react/no-array-index-key */}
           <div className="mb-8">
             <Skeleton className="mb-4 h-8 w-40" />
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
@@ -47,8 +48,10 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               ))}
             </div>
           </div>
+          {/* eslint-enable react/no-array-index-key */}
 
           {/* Games Table Skeleton */}
+          {/* eslint-disable react/no-array-index-key */}
           <div>
             <Skeleton className="mb-4 h-8 w-48" />
             <div className="overflow-hidden rounded-lg border">
@@ -70,6 +73,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           </div>
+          {/* eslint-enable react/no-array-index-key */}
         </div>
       </div>
     );

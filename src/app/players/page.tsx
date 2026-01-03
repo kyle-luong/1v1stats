@@ -46,9 +46,9 @@ export default function PlayersPage() {
           </div>
         )}
 
+        {/* eslint-disable react/no-array-index-key */}
         {isLoading && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {/* eslint-disable-next-line react/no-array-index-key */}
             {[...Array(8)].map((_, i) => (
               <div key={`player-skeleton-${i}`} className="animate-pulse rounded-lg border bg-card">
                 <div className="aspect-square bg-muted" />
@@ -60,6 +60,7 @@ export default function PlayersPage() {
             ))}
           </div>
         )}
+        {/* eslint-enable react/no-array-index-key */}
 
         {!isLoading && !error && players && players.length > 0 && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

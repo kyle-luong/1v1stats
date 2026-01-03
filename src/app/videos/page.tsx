@@ -72,14 +72,15 @@ export default function VideosPage() {
           </div>
         )}
 
+        {/* eslint-disable react/no-array-index-key */}
         {isLoading && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {/* eslint-disable-next-line react/no-array-index-key */}
             {[...Array(8)].map((_, i) => (
               <VideoCardSkeleton key={`video-skeleton-${i}`} />
             ))}
           </div>
         )}
+        {/* eslint-enable react/no-array-index-key */}
 
         {!isLoading && !error && filteredVideos && filteredVideos.length > 0 && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

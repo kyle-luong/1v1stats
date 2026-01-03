@@ -58,6 +58,22 @@ export const gameRouter = createTRPCRouter({
   ),
 
   /**
+   * Get videos that don't have games yet (for admin dropdown)
+   */
+  getVideosWithoutGames: adminProcedure.query(async ({ ctx }) => {
+    const videos = await ctx.db.video.findMany({
+      where: {
+        status: VideoStatus.PROCESSING,
+        game: null,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return videos;
+  }),
+
+  /**
    * Create a new game with stats (admin only)
    */
   createWithStats: adminProcedure
