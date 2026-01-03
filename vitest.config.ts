@@ -10,17 +10,8 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "jsdom",
+    environment: "happy-dom",
     globals: true,
-    server: {
-      deps: {
-        inline: [
-          // Fix ESM compatibility issues with jsdom dependencies
-          "@exodus/bytes",
-          "html-encoding-sniffer",
-        ],
-      },
-    },
   },
   resolve: {
     alias: {
