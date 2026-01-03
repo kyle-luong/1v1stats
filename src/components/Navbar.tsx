@@ -1,7 +1,5 @@
-/**
- * Public Navigation Bar
- * Main navigation component for public-facing pages
- */
+// src/components/Navbar.tsx
+// Public navigation bar with CraftedNBA-inspired styling and Contribute dropdown
 
 "use client";
 
@@ -9,43 +7,79 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/videos", label: "Videos" },
-  { href: "/players", label: "Players" },
-  { href: "/submit", label: "Submit Video" },
+  { href: "/", label: "HOME" },
+  { href: "/games", label: "GAMES" },
+  { href: "/players", label: "PLAYERS" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const isContributeActive =
+    pathname === "/submit" || pathname === "/donate";
+
   return (
-    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="border-b bg-card">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-primary">Isostat</span>
+          <Link href="/" className="flex items-center">
+            <span className="font-heading text-2xl font-semibold tracking-wide text-foreground">
+              ISOSTAT
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-6">
+          <div className="hidden md:flex md:items-center md:space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
+                  "font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary",
                   pathname === link.href
-                    ? "text-foreground"
+                    ? "text-primary"
                     : "text-muted-foreground"
                 )}
               >
                 {link.label}
               </Link>
             ))}
+
+            {/* Contribute Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={cn(
+                  "flex items-center gap-1 font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary focus:outline-none",
+                  isContributeActive ? "text-primary" : "text-muted-foreground"
+                )}
+              >
+                CONTRIBUTE
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem asChild>
+                  <Link href="/submit" className="w-full cursor-pointer">
+                    Submit Games
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/donate" className="w-full cursor-pointer">
+                    Donate
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Mobile Menu Button */}
@@ -75,23 +109,53 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4">
-            <div className="flex flex-col space-y-3">
+          <div className="pb-4 md:hidden">
+            <div className="flex flex-col space-y-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-2 py-2 text-sm font-medium transition-colors hover:text-primary",
+                    "px-2 py-2 font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary",
                     pathname === link.href
-                      ? "text-foreground"
+                      ? "text-primary"
                       : "text-muted-foreground"
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
+              {/* Mobile Contribute Links */}
+              <div className="border-t pt-2">
+                <span className="px-2 py-1 font-heading text-xs font-medium tracking-wider text-muted-foreground">
+                  CONTRIBUTE
+                </span>
+                <Link
+                  href="/submit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-2 text-sm transition-colors hover:text-primary",
+                    pathname === "/submit"
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  Submit Games
+                </Link>
+                <Link
+                  href="/donate"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-2 text-sm transition-colors hover:text-primary",
+                    pathname === "/donate"
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  Donate
+                </Link>
+              </div>
             </div>
           </div>
         )}
