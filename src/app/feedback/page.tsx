@@ -1,7 +1,7 @@
 // src/app/feedback/page.tsx
 // Feedback page for bug reports and feature suggestions
 
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function FeedbackPage() {
   return (

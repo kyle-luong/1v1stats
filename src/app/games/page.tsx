@@ -5,7 +5,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 

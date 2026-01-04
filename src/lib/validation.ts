@@ -1,6 +1,8 @@
 // src/lib/validation.ts
 // Form validation utilities for the submit page
 
+import { MAX_GAME_SCORE } from "@/constants/validation";
+
 export interface GameStatsInput {
   player1Name: string;
   player2Name: string;
@@ -63,7 +65,7 @@ export function validateGameStats(input: GameStatsInput): GameStatsValidationRes
     };
   }
 
-  if (p1Score > 999 || p2Score > 999) {
+  if (p1Score > MAX_GAME_SCORE || p2Score > MAX_GAME_SCORE) {
     return {
       isValid: false,
       error: "Scores seem unrealistic. Please verify the values",

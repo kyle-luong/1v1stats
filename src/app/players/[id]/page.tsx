@@ -8,7 +8,7 @@
 import { use } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 import { trpc } from "@/lib/trpc/Provider";
 import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";

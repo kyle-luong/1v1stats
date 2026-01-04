@@ -10,7 +10,7 @@ import { trpc } from "@/lib/trpc/client";
 import { extractYoutubeId, getYoutubeThumbnail, isValidYoutubeUrl } from "@/lib/youtube";
 import { validateGameStats, formatGameStatsForNote } from "@/lib/validation";
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 
 export default function SubmitVideoPage() {
   const [url, setUrl] = useState("");
