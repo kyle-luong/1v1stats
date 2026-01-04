@@ -76,17 +76,24 @@ isostat/
 
 ## Current progress
 
-### Phase 1 (MVP)
+### Phase 1 (MVP) - COMPLETE
 
-- Database schema implemented
-- tRPC API with type-safe procedures
-- Basic UI with player listing
-- CI/CD pipeline (lint, type-check, test, build)
+- **Database:** Full schema with Rulesets, Games, Players, Videos, and Users
+- **API:** Complete tRPC router implementation (`video`, `player`, `game`, `ruleset`)
+- **Admin:** Dashboard, moderation queue, player management, game entry
+- **Public UI:**
+  - Video submission and deduplication
+  - Video and game listings
+  - Player profiles with stats
+  - Game details with YouTube embeds
+- **Auth:** Supabase Auth with admin role-based access
+- **Quality:** Full CI/CD (lint, type-check, test, build)
 
-### Future work
+## Future work
 
-- Player profile pages with career stats
-- Video submission and YouTube metadata scraping
-- Manual game stat entry
-- Leaderboards and stat aggregation
-- Public REST API for external access
+- **Phase 1.5:** Channel whitelisting and automated scraping
+- **Phase 2:** Transcript-based event inference
+- **Phase 3:** Community labeling tool (The "Moat")
+- **Phase 4:** Computer Vision automation
+- **Phase 5:** Advanced analytics and monetization
+
