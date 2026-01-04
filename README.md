@@ -7,12 +7,16 @@ A platform for tracking and analyzing statistics from 1v1 basketball YouTube vid
 - **Frontend:** Next.js 15 (App Router), React, TypeScript, Tailwind CSS
 - **Backend:** tRPC v11, Prisma ORM
 - **Database:** PostgreSQL (via Supabase)
+- **Authentication:** Supabase Auth
+- **UI Components:** Radix UI, Lucide Icons, Recharts
+- **Testing:** Vitest, Playwright
+- **Code Quality:** ESLint (Airbnb), Prettier
 
 ## Development setup
 
 ```bash
 npm install
-cp .env.local .env
+cp .env.example .env
 # Edit .env with your Supabase credentials
 npm run db:migrate
 npm run dev
@@ -22,7 +26,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment variables
 
-Create `.env` based on `.env.local`:
+Create `.env` based on `.env.example`:
 
 ```bash
 DATABASE_URL="postgresql://..."
@@ -41,6 +45,20 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 - `npm run db:migrate` - Run database migrations
 - `npm run db:studio` - Open Prisma Studio
 
+## Administration
+
+Admin features (`/admin/dashboard`, `/admin/videos`, `/admin/players`, `/admin/games`) require an account with the `isAdmin` flag. To promote a user:
+
+1. Sign up at `/signup`
+2. Run the promotion script:
+
+```bash
+npx tsx scripts/make-admin.ts user@example.com
+```
+
+3. Log in to verify access at `/admin/dashboard`
+
+
 ## Database
 
 PostgreSQL database is required. Using Supabase (free tier available). Schema includes:
@@ -49,6 +67,7 @@ PostgreSQL database is required. Using Supabase (free tier available). Schema in
 - **Player** - Basketball players in videos
 - **Video** - YouTube videos containing 1v1 games
 - **Game** - 1v1 matchups between two players
+- **Ruleset** - Game rulesets (scoring, possession type, etc.)
 - **Stat** - Detailed basketball statistics per game
 
 See `prisma/schema.prisma` for complete schema.
@@ -60,40 +79,38 @@ Type-safe API via tRPC with modular routers:
 - `player.*` - Player CRUD and statistics
 - `video.*` - Video submission and listing
 - `game.*` - Game management
-- `stat.*` - Statistics aggregation and leaderboards
+- `ruleset.*` - Ruleset queries
+- `user.*` - User authentication
 
 ## Project structure
 
 ```
 isostat/
-├── app/              # Next.js pages and routes
-├── components/       # React components
-├── lib/             # Utilities and tRPC client
-├── prisma/          # Database schema and migrations
-├── server/          # tRPC routers and API logic
-└── .github/         # CI/CD workflows
+├── src/
+│   ├── app/              # Next.js pages and routes
+│   ├── components/       # React components
+│   ├── lib/              # Utilities and tRPC client
+│   ├── server/           # tRPC routers and API logic
+│   └── schemas/          # Zod validation schemas
+├── prisma/               # Database schema and migrations
+└── .github/              # CI/CD workflows
 ```
 
 ## Current progress
 
 ### Phase 1 (MVP) - COMPLETE
 
-- **Database:** Full schema with Rulesets, Games, Players, Videos, and Users
-- **API:** Complete tRPC router implementation (`video`, `player`, `game`, `ruleset`)
-- **Admin:** Dashboard, moderation queue, player management, game entry
-- **Public UI:**
-  - Video submission and deduplication
-  - Video and game listings
-  - Player profiles with stats
-  - Game details with YouTube embeds
+- **Database:** Full schema with User, Player, Video, Game, Ruleset, Stat models
+- **API:** Complete tRPC routers with type-safe procedures
+- **Admin:** Dashboard, video moderation, player management, game entry
+- **Public:** Video submission, video/game listings, player profiles
 - **Auth:** Supabase Auth with admin role-based access
-- **Quality:** Full CI/CD (lint, type-check, test, build)
+- **CI/CD:** GitHub Actions (lint, type-check, test, build)
 
-## Future work
+### Future work
 
-- **Phase 1.5:** Channel whitelisting and automated scraping
-- **Phase 2:** Transcript-based event inference
-- **Phase 3:** Community labeling tool (The "Moat")
-- **Phase 4:** Computer Vision automation
-- **Phase 5:** Advanced analytics and monetization
-
+- Player profile pages with career stats
+- Video submission and YouTube metadata scraping
+- Manual game stat entry
+- Leaderboards and stat aggregation
+- Public REST API for external access
