@@ -31,4 +31,14 @@ export const userRouter = createTRPCRouter({
 
       return user;
     }),
+
+  /**
+   * Get the current user's profile
+   */
+  getMe: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.user) return null;
+    return ctx.db.user.findUnique({
+      where: { id: ctx.user.id },
+    });
+  }),
 });
