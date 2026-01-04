@@ -28,12 +28,14 @@ export function extractYoutubeId(url: string): string | null {
 
       // Embed URLs (/embed/VIDEO_ID)
       if (urlObj.pathname.startsWith("/embed/")) {
-        return urlObj.pathname.split("/")[2];
+        const id = urlObj.pathname.split("/")[2];
+        return id || null;
       }
 
       // Short URLs (/v/VIDEO_ID)
       if (urlObj.pathname.startsWith("/v/")) {
-        return urlObj.pathname.split("/")[2];
+        const id = urlObj.pathname.split("/")[2];
+        return id || null;
       }
     }
 
