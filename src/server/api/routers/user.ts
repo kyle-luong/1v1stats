@@ -20,12 +20,17 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Create the user record
       // This runs with Prisma admin privileges, bypassing RLS
-      const user = await ctx.db.user.create({
-        data: {
+      // Upsert the user record
+      // If it exists, do nothing. If not, create it.
+      // This allows it to be used as a "sync" or "ensure" operation.
+      const user = await ctx.db.user.upsert({
+        where: { id: input.id },
+        update: {}, // No updates if exists
+        create: {
           id: input.id,
           email: input.email,
           name: input.name,
-          isAdmin: false, // Enforce false by default
+          isAdmin: false,
         },
       });
 
