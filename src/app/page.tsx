@@ -26,45 +26,152 @@ export default function HomePage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="border-b bg-card py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="mb-4 font-heading text-5xl font-semibold uppercase tracking-wide md:text-6xl lg:text-7xl">
-              Isostat
-            </h1>
-            <p className="mb-2 font-heading text-xl uppercase tracking-wider text-primary md:text-2xl">
-              1v1 Basketball Statistics
-            </p>
-            <p className="mb-10 text-lg text-muted-foreground">
-              Community-driven analytics from YouTube
-            </p>
+      {/* Hero Section - Full viewport height */}
+      <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center border-b bg-card px-4">
+        {/* Basketball court lines background - half-court floor */}
+        <div className="pointer-events-none absolute inset-0 flex items-start justify-center overflow-hidden opacity-[0.06]">
+          <svg
+            viewBox="0 0 500 500"
+            className="mt-12 h-[135%] w-auto text-primary"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            preserveAspectRatio="xMidYMin meet"
+          >
+            {/* Half court - arc peak at y~20, baseline at y=490 (off screen) */}
 
-            {/* Primary CTA Buttons - Games and Players */}
-            <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <Link
-                href="/games"
-                className="rounded bg-primary px-10 py-4 font-heading text-lg font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90"
-              >
-                View Games
-              </Link>
-              <Link
-                href="/players"
-                className="rounded border-2 border-primary bg-transparent px-10 py-4 font-heading text-lg font-medium uppercase tracking-wider text-primary transition hover:bg-primary/10"
-              >
-                Browse Players
-              </Link>
+            {/* Three-point line: arc endpoints at y=240 so peak is around y=15 */}
+            <path d="M 25 240 A 225 225 0 0 1 475 240" />
+            {/* Left corner straight section */}
+            <line x1="25" y1="240" x2="25" y2="490" />
+            {/* Right corner straight section */}
+            <line x1="475" y1="240" x2="475" y2="490" />
+
+            {/* The key/paint area */}
+            <rect x="175" y="230" width="150" height="260" />
+
+            {/* Free throw circle (top half solid - outside the key) */}
+            <path d="M 175 230 A 75 75 0 0 1 325 230" />
+            {/* Free throw circle (bottom half dashed - inside the key) */}
+            <path d="M 175 230 A 75 75 0 0 0 325 230" strokeDasharray="10 7" />
+
+            {/* Restricted area arc */}
+            <path d="M 212 490 A 38 38 0 0 1 288 490" />
+
+            {/* Rim and backboard */}
+            <circle cx="250" cy="455" r="10" />
+            <line x1="230" y1="470" x2="270" y2="470" strokeWidth="3" />
+
+            {/* Small rectangle connecting rim to backboard */}
+            <rect x="247" y="455" width="6" height="15" />
+
+            {/* Lane block markers */}
+            <line x1="175" y1="300" x2="160" y2="300" />
+            <line x1="175" y1="360" x2="160" y2="360" />
+            <line x1="175" y1="420" x2="160" y2="420" />
+            <line x1="325" y1="300" x2="340" y2="300" />
+            <line x1="325" y1="360" x2="340" y2="360" />
+            <line x1="325" y1="420" x2="340" y2="420" />
+
+            {/* Baseline - below visible area */}
+            <line x1="0" y1="490" x2="500" y2="490" />
+          </svg>
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <h1 className="mb-4 font-heading text-5xl font-semibold uppercase tracking-wide md:text-6xl lg:text-7xl">
+            Isostat
+          </h1>
+          <p className="mb-2 font-heading text-xl uppercase tracking-wider text-primary md:text-2xl">
+            1v1 Basketball Statistics
+          </p>
+          <p className="mb-10 text-lg text-muted-foreground">
+            Community-driven analytics from YouTube
+          </p>
+
+          {/* Primary CTA Buttons - Games and Players */}
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+            <Link
+              href="/games"
+              className="rounded bg-primary px-10 py-4 font-heading text-lg font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90"
+            >
+              View Games
+            </Link>
+            <Link
+              href="/players"
+              className="rounded border-2 border-primary bg-transparent px-10 py-4 font-heading text-lg font-medium uppercase tracking-wider text-primary transition hover:bg-primary/10"
+            >
+              Browse Players
+            </Link>
+          </div>
+
+          {/* Featured games preview */}
+          <div className="mt-16">
+            <p className="mb-4 font-heading text-xs uppercase tracking-widest text-muted-foreground">
+              {recentGamesList.length > 0 ? "Recent Matchups" : "Sample Matchups"}
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {recentGamesList.length > 0 ? (
+                recentGamesList.slice(0, 3).map((game) => (
+                  <Link
+                    key={game.id}
+                    href={`/games/${game.id}`}
+                    className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm transition hover:border-primary"
+                  >
+                    <span className="font-medium">{game.player1.name}</span>
+                    <span className="font-heading text-primary">
+                      {game.player1Score}-{game.player2Score}
+                    </span>
+                    <span className="font-medium">{game.player2.name}</span>
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
+                    <span className="font-medium">Cash</span>
+                    <span className="font-heading text-primary">21-18</span>
+                    <span className="font-medium">Hezi</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
+                    <span className="font-medium">Bone Collector</span>
+                    <span className="font-heading text-primary">30-27</span>
+                    <span className="font-medium">The Professor</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
+                    <span className="font-medium">Slim Reaper</span>
+                    <span className="font-heading text-primary">21-15</span>
+                    <span className="font-medium">White Iverson</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute inset-x-0 bottom-8 flex justify-center animate-bounce text-muted-foreground">
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
         </div>
       </section>
 
       {/* Stats Showcase */}
       <section className="border-b py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+          <div className="grid grid-cols-3 gap-4 text-center md:gap-8">
             <div>
-              <div className="mb-1 font-heading text-4xl font-semibold text-primary md:text-5xl">
+              <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
                 {totalGames}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
@@ -72,7 +179,7 @@ export default function HomePage() {
               </div>
             </div>
             <div>
-              <div className="mb-1 font-heading text-4xl font-semibold text-primary md:text-5xl">
+              <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
                 {totalPlayers}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
@@ -80,19 +187,11 @@ export default function HomePage() {
               </div>
             </div>
             <div>
-              <div className="mb-1 font-heading text-4xl font-semibold text-primary md:text-5xl">
+              <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
                 {totalVideos}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                 Videos
-              </div>
-            </div>
-            <div>
-              <div className="mb-1 font-heading text-4xl font-semibold text-primary md:text-5xl">
-                100%
-              </div>
-              <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
-                Community
               </div>
             </div>
           </div>
@@ -107,7 +206,7 @@ export default function HomePage() {
               What We Offer
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div className="rounded border bg-card p-8 transition hover:shadow-md">
+              <div className="rounded border bg-card p-8">
                 <h3 className="mb-3 font-heading text-lg font-medium uppercase tracking-wide">
                   Player Profiles
                 </h3>
@@ -116,19 +215,24 @@ export default function HomePage() {
                   games. Track points, assists, rebounds, and more.
                 </p>
               </div>
-              <div className="rounded border bg-card p-8 transition hover:shadow-md">
+              <div className="rounded border bg-card p-8">
                 <h3 className="mb-3 font-heading text-lg font-medium uppercase tracking-wide">
                   Game Archive
                 </h3>
                 <p className="text-muted-foreground">
-                  Watch games from top channels like The Next Chapter and
-                  Ballislife. Every game linked to full video footage.
+                  Browse detailed game statistics and watch footage from top
+                  channels. Every matchup with full box scores.
                 </p>
               </div>
-              <div className="rounded border bg-card p-8 transition hover:shadow-md">
-                <h3 className="mb-3 font-heading text-lg font-medium uppercase tracking-wide">
-                  Leaderboards
-                </h3>
+              <div className="rounded border bg-card p-8">
+                <div className="mb-3 flex items-center gap-2">
+                  <h3 className="font-heading text-lg font-medium uppercase tracking-wide">
+                    Leaderboards
+                  </h3>
+                  <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    Soon
+                  </span>
+                </div>
                 <p className="text-muted-foreground">
                   See who&apos;s dominating in points, assists, rebounds, and
                   advanced metrics. Compare players head-to-head.
@@ -208,23 +312,92 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Support Section - Secondary Donate CTA */}
-      <section className="border-t py-16">
+      {/* Get Involved */}
+      <section className="border-t py-14">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="mb-4 font-heading text-2xl font-semibold uppercase tracking-wide md:text-3xl">
-              Support the Project
+          <div className="mx-auto flex max-w-4xl flex-col items-center gap-8">
+            <h2 className="font-heading text-lg font-medium uppercase tracking-wider text-muted-foreground">
+              Get Involved
             </h2>
-            <p className="mb-6 text-muted-foreground">
-              Isostat is a community-driven project. Your contributions help us
-              maintain and improve the platform.
-            </p>
-            <Link
-              href="/donate"
-              className="inline-block rounded border-2 border-primary bg-transparent px-8 py-3 font-heading text-sm font-medium uppercase tracking-wider text-primary transition hover:bg-primary/10"
-            >
-              Donate
-            </Link>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+              <Link
+                href="/submit"
+                className="group flex flex-col items-center gap-2"
+              >
+                <span className="font-heading text-base font-medium uppercase tracking-wider text-foreground transition group-hover:text-primary">
+                  Submit Games
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Add game data
+                </span>
+              </Link>
+              <Link
+                href="/donate"
+                className="group flex flex-col items-center gap-2"
+              >
+                <span className="font-heading text-base font-medium uppercase tracking-wider text-foreground transition group-hover:text-primary">
+                  Donate
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Support the project
+                </span>
+              </Link>
+              <Link
+                href="/feedback"
+                className="group flex flex-col items-center gap-2"
+              >
+                <span className="font-heading text-base font-medium uppercase tracking-wider text-foreground transition group-hover:text-primary">
+                  Feedback
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Report issues
+                </span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Roadmap - Vertical timeline */}
+      <section className="border-t bg-card/50 py-16">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-xl">
+            <h2 className="mb-10 text-center font-heading text-2xl font-semibold uppercase tracking-wide">
+              Roadmap
+            </h2>
+            <div className="relative border-l-2 border-border pl-8">
+              <div className="relative mb-8">
+                <div className="absolute -left-[41px] flex h-5 w-5 items-center justify-center rounded-full bg-primary">
+                  <div className="h-2 w-2 rounded-full bg-primary-foreground" />
+                </div>
+                <span className="mb-1 block font-heading text-xs uppercase tracking-wider text-primary">
+                  Now
+                </span>
+                <span className="text-foreground">
+                  Core game and player statistics
+                </span>
+              </div>
+              <div className="relative mb-8">
+                <div className="absolute -left-[41px] flex h-5 w-5 items-center justify-center rounded-full border-2 border-primary bg-card">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                </div>
+                <span className="mb-1 block font-heading text-xs uppercase tracking-wider text-primary">
+                  Next
+                </span>
+                <span className="text-foreground">
+                  Sortable leaderboards and player rankings
+                </span>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[41px] flex h-5 w-5 items-center justify-center rounded-full border-2 border-muted-foreground bg-card" />
+                <span className="mb-1 block font-heading text-xs uppercase tracking-wider text-muted-foreground">
+                  Later
+                </span>
+                <span className="text-muted-foreground">
+                  Head-to-head comparisons and advanced analytics
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -292,6 +465,14 @@ export default function HomePage() {
                       className="text-foreground hover:text-primary"
                     >
                       Donate
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/feedback"
+                      className="text-foreground hover:text-primary"
+                    >
+                      Feedback
                     </Link>
                   </li>
                 </ul>

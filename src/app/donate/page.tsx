@@ -1,6 +1,7 @@
 // src/app/donate/page.tsx
-// Donate page placeholder for community contributions
+// Donate page for community contributions
 
+import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 
 export default function DonatePage() {
@@ -23,40 +24,19 @@ export default function DonatePage() {
               </span>
             </div>
 
-            <h2 className="mb-4 font-heading text-xl font-medium uppercase tracking-wide">
-              Donation Options
-            </h2>
-            <p className="mb-6 text-muted-foreground">
-              We&apos;re working on setting up donation options. In the
-              meantime, the best way to support Isostat is by contributing game
-              data through our submit form.
+            <p className="mb-8 text-muted-foreground">
+              We&apos;re working on setting up donation options. Contributions
+              will help fund server costs, API access, and future features like
+              automated stats extraction.
             </p>
 
-            <div className="space-y-4 text-left">
-              <div className="rounded border p-4">
-                <h3 className="mb-2 font-semibold">Submit Games</h3>
-                <p className="text-sm text-muted-foreground">
-                  Help grow our database by submitting 1v1 basketball game data
-                  from YouTube videos.
-                </p>
-              </div>
-
-              <div className="rounded border p-4">
-                <h3 className="mb-2 font-semibold">Spread the Word</h3>
-                <p className="text-sm text-muted-foreground">
-                  Share Isostat with other basketball fans who might be
-                  interested in 1v1 statistics.
-                </p>
-              </div>
-
-              <div className="rounded border p-4">
-                <h3 className="mb-2 font-semibold">Report Issues</h3>
-                <p className="text-sm text-muted-foreground">
-                  Found a bug or have a suggestion? Let us know so we can
-                  improve the platform.
-                </p>
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              In the meantime, the best way to support Isostat is by{" "}
+              <Link href="/submit" className="text-primary hover:underline">
+                submitting game data
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </div>
