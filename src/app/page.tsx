@@ -6,21 +6,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
+import { BasketballCourt } from "@/components/BasketballCourt";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 
 export default function HomePage() {
-  const completedVideos = trpc.video.getAll.useQuery({
-    status: "COMPLETED" as const,
-    limit: 100,
-  });
-  const players = trpc.player.getAll.useQuery();
-  const recentGames = trpc.game.getAll.useQuery();
+  // Use optimized count queries instead of fetching all records
+  const videoCount = trpc.video.getPublicCount.useQuery();
+  const playerCount = trpc.player.getCount.useQuery();
+  const gameCount = trpc.game.getCount.useQuery();
+  const recentGames = trpc.game.getRecent.useQuery({ limit: 6 });
 
-  const totalVideos = completedVideos.data?.length || 0;
-  const totalPlayers = players.data?.length || 0;
-  const totalGames = recentGames.data?.length || 0;
-  const recentGamesList = recentGames.data?.slice(0, 6) || [];
+  const totalVideos = videoCount.data ?? 0;
+  const totalPlayers = playerCount.data ?? 0;
+  const totalGames = gameCount.data ?? 0;
+  const recentGamesList = recentGames.data ?? [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,52 +30,7 @@ export default function HomePage() {
       <section className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center border-b bg-card px-4">
         {/* Basketball court lines background - half-court floor */}
         <div className="pointer-events-none absolute inset-0 flex items-start justify-center overflow-hidden opacity-[0.06]">
-          <svg
-            viewBox="0 0 500 500"
-            className="mt-12 h-[135%] w-auto text-primary"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            preserveAspectRatio="xMidYMin meet"
-          >
-            {/* Half court - arc peak at y~20, baseline at y=490 (off screen) */}
-
-            {/* Three-point line: arc endpoints at y=240 so peak is around y=15 */}
-            <path d="M 25 240 A 225 225 0 0 1 475 240" />
-            {/* Left corner straight section */}
-            <line x1="25" y1="240" x2="25" y2="490" />
-            {/* Right corner straight section */}
-            <line x1="475" y1="240" x2="475" y2="490" />
-
-            {/* The key/paint area */}
-            <rect x="175" y="230" width="150" height="260" />
-
-            {/* Free throw circle (top half solid - outside the key) */}
-            <path d="M 175 230 A 75 75 0 0 1 325 230" />
-            {/* Free throw circle (bottom half dashed - inside the key) */}
-            <path d="M 175 230 A 75 75 0 0 0 325 230" strokeDasharray="10 7" />
-
-            {/* Restricted area arc */}
-            <path d="M 212 490 A 38 38 0 0 1 288 490" />
-
-            {/* Rim and backboard */}
-            <circle cx="250" cy="455" r="10" />
-            <line x1="230" y1="470" x2="270" y2="470" strokeWidth="3" />
-
-            {/* Small rectangle connecting rim to backboard */}
-            <rect x="247" y="455" width="6" height="15" />
-
-            {/* Lane block markers */}
-            <line x1="175" y1="300" x2="160" y2="300" />
-            <line x1="175" y1="360" x2="160" y2="360" />
-            <line x1="175" y1="420" x2="160" y2="420" />
-            <line x1="325" y1="300" x2="340" y2="300" />
-            <line x1="325" y1="360" x2="340" y2="360" />
-            <line x1="325" y1="420" x2="340" y2="420" />
-
-            {/* Baseline - below visible area */}
-            <line x1="0" y1="490" x2="500" y2="490" />
-          </svg>
+          <BasketballCourt className="mt-12 h-[135%] w-auto text-primary" />
         </div>
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">

@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { extractYoutubeId, getYoutubeThumbnail, isValidYoutubeUrl } from "@/lib/youtube";
+import { validateGameStats, formatGameStatsForNote } from "@/lib/validation";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 
@@ -50,13 +51,22 @@ export default function SubmitVideoPage() {
       return;
     }
 
+    // Validate optional game stats (all-or-nothing with score validation)
+    const gameStatsInput = { player1Name, player2Name, player1Score, player2Score };
+    const gameStatsValidation = validateGameStats(gameStatsInput);
+    if (!gameStatsValidation.isValid) {
+      setError(gameStatsValidation.error || "Invalid game stats");
+      return;
+    }
+
     try {
-      // Build note with game stats if provided
-      let fullNote = submitterNote || "";
-      if (player1Name && player2Name && player1Score && player2Score) {
-        const gameInfo = `[GAME DATA] ${player1Name}: ${player1Score} vs ${player2Name}: ${player2Score}`;
-        fullNote = fullNote ? `${gameInfo}\n\n${fullNote}` : gameInfo;
-      }
+      // Build note with game stats if provided.
+      // Game stats are stored in the note field as structured text for admin processing.
+      // This allows submitters to provide helpful data without requiring a database schema change.
+      // Admins will manually parse this data when creating official Game records.
+      const fullNote = gameStatsValidation.hasGameStats
+        ? formatGameStatsForNote(gameStatsInput, submitterNote)
+        : submitterNote;
 
       await submitMutation.mutateAsync({
         url,

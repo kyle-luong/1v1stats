@@ -36,6 +36,8 @@ export default function GamesPage() {
           </div>
         )}
 
+        {/* Using array index as key is safe here because skeleton loaders are static,
+            never reorder, and have no state or user interaction. */}
         {/* eslint-disable react/no-array-index-key */}
         {isLoading && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

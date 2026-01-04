@@ -102,6 +102,13 @@ export const videoRouter = createTRPCRouter({
     ),
 
   /**
+   * Get public video count (completed videos only)
+   */
+  getPublicCount: publicProcedure.query(async ({ ctx }) =>
+    ctx.db.video.count({ where: { status: VideoStatus.COMPLETED } })
+  ),
+
+  /**
    * Get video stats (admin only)
    */
   getStats: adminProcedure.query(async ({ ctx }) => {
