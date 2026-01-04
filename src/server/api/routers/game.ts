@@ -49,6 +49,46 @@ export const gameRouter = createTRPCRouter({
     ),
 
   /**
+   * Get paginated games (infinite scroll)
+   */
+  getInfinite: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 20;
+      const { cursor } = input;
+
+      const items = await ctx.db.game.findMany({
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: {
+          gameDate: "desc",
+        },
+        include: {
+          video: true,
+          player1: true,
+          player2: true,
+          ruleset: true,
+        },
+      });
+
+      let nextCursor: typeof cursor | undefined;
+      if (items.length > limit) {
+        const nextItem = items.pop();
+        nextCursor = nextItem!.id;
+      }
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+
+  /**
    * Get all games
    */
   getAll: publicProcedure.query(async ({ ctx }) =>
