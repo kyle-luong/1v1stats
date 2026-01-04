@@ -7,6 +7,20 @@ import { z } from "zod";
 import { VideoStatus } from "@prisma/client";
 import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
+// Simple in-memory rate limiter
+const submissionRateLimit = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX_REQUESTS = 5;
+
+// Helper for sanitization
+const sanitize = (str: string) =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 export const videoRouter = createTRPCRouter({
   /**
    * Get all videos with optional filters
@@ -59,7 +73,7 @@ export const videoRouter = createTRPCRouter({
       },
     })
   ),
-
+  
   /**
    * Submit a new video (authentication optional, links to user if logged in)
    */
@@ -75,14 +89,36 @@ export const videoRouter = createTRPCRouter({
         submitterNote: z.string().max(500).optional(),
       })
     )
-    .mutation(async ({ ctx, input }) =>
-      ctx.db.video.create({
+    .mutation(async ({ ctx, input }) => {
+      // Rate Limiting (IP-based)
+      const ip = ctx.headers.get("x-forwarded-for") || "unknown";
+      const now = Date.now();
+      const userRequests = submissionRateLimit.get(ip) || [];
+      
+      // Filter out old requests
+      const recentRequests = userRequests.filter((time) => now - time < RATE_LIMIT_WINDOW);
+      
+      if (recentRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
+        throw new Error("Rate limit exceeded. Please try again later.");
+      }
+      
+      submissionRateLimit.set(ip, [...recentRequests, now]);
+
+      // Sanitization
+      const sanitizedData = {
+        ...input,
+        title: sanitize(input.title),
+        channelName: sanitize(input.channelName),
+        submitterNote: input.submitterNote ? sanitize(input.submitterNote) : undefined,
+      };
+
+      return ctx.db.video.create({
         data: {
-          ...input,
+          ...sanitizedData,
           submittedById: ctx.user?.id, // Link to user if logged in
         },
-      })
-    ),
+      });
+    }),
 
   /**
    * Update video status (admin only)

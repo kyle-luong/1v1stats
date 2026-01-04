@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { trpc } from "@/lib/trpc/client";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const createUser = trpc.user.create.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,16 +52,16 @@ export default function SignupPage() {
         return;
       }
 
-      // Create user record in database
-      const { error: dbError } = await supabase.from("User").insert({
-        id: authData.user.id,
-        email: authData.user.email!,
-        name: name || null,
-      });
-
-      if (dbError) {
-        console.error("Error creating user record:", dbError);
-        // Continue anyway - user is authenticated
+      // Create user record in database using tRPC (bypasses RLS)
+      try {
+        await createUser.mutateAsync({
+          id: authData.user.id,
+          email: authData.user.email!,
+          name: name || undefined,
+        });
+      } catch (dbErr) {
+        console.error("Error creating user record:", dbErr);
+        // Continue anyway - user is authenticated, though profile might be missing
       }
 
       // Redirect to home

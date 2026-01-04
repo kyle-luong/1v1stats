@@ -16,16 +16,16 @@ async function makeAdmin(email: string) {
   });
 
   if (!user) {
-    console.error(`❌ User not found with email: ${email}`);
+    console.error(`User not found with email: ${email}`);
     console.log("\nMake sure the user has signed up first:");
-    console.log(`  1. Go to http://localhost:3001/signup`);
+    console.log(`  1. Go to http://localhost:3000/signup`);
     console.log(`  2. Create an account with this email`);
     console.log(`  3. Run this script again`);
     process.exit(1);
   }
 
   if (user.isAdmin) {
-    console.log(`✓ User is already an admin: ${user.email}`);
+    console.log(`User is already an admin: ${user.email}`);
     return;
   }
 
@@ -34,7 +34,7 @@ async function makeAdmin(email: string) {
     data: { isAdmin: true },
   });
 
-  console.log(`✓ Successfully granted admin privileges to: ${user.email}`);
+  console.log(`Successfully granted admin privileges to: ${user.email}`);
   console.log(`\nYou can now access /admin routes after logging in.`);
 }
 

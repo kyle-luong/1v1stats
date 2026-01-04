@@ -10,6 +10,8 @@ import { gameRouter } from "./routers/game";
 import { statRouter } from "./routers/stat";
 import { rulesetRouter } from "./routers/ruleset";
 
+import { userRouter } from "./routers/user";
+
 /**
  * Main application router
  * All tRPC procedures are namespaced under their respective routers
@@ -20,6 +22,7 @@ export const appRouter = createTRPCRouter({
   game: gameRouter,
   stat: statRouter,
   ruleset: rulesetRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

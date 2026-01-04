@@ -78,7 +78,6 @@ export default function SubmitVideoPage() {
         submitterNote: fullNote || undefined,
       });
 
-      setSuccess(true);
       // Clear form
       setUrl("");
       setTitle("");
@@ -90,6 +89,8 @@ export default function SubmitVideoPage() {
       setPlayer1Score("");
       setPlayer2Score("");
       setTermsAccepted(false);
+      
+      setSuccess(true);
     } catch (_err) {
       setError("Failed to submit video. Please try again.");
     }

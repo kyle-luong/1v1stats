@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { BasketballCourt } from "@/components/common/BasketballCourt";
 import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
+import { SAMPLE_MATCHUPS } from "@/constants/sample-data";
 
 export default function HomePage() {
   // Use optimized count queries instead of fetching all records
@@ -82,21 +83,16 @@ export default function HomePage() {
                 ))
               ) : (
                 <>
-                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
-                    <span className="font-medium">Cash</span>
-                    <span className="font-heading text-primary">21-18</span>
-                    <span className="font-medium">Hezi</span>
-                  </div>
-                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
-                    <span className="font-medium">Bone Collector</span>
-                    <span className="font-heading text-primary">30-27</span>
-                    <span className="font-medium">The Professor</span>
-                  </div>
-                  <div className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm">
-                    <span className="font-medium">Slim Reaper</span>
-                    <span className="font-heading text-primary">21-15</span>
-                    <span className="font-medium">White Iverson</span>
-                  </div>
+                  {SAMPLE_MATCHUPS.map((matchup) => (
+                    <div
+                      key={`${matchup.player1}-${matchup.player2}`}
+                      className="flex items-center gap-2 rounded border bg-background px-4 py-2 text-sm"
+                    >
+                      <span className="font-medium">{matchup.player1}</span>
+                      <span className="font-heading text-primary">{matchup.score}</span>
+                      <span className="font-medium">{matchup.player2}</span>
+                    </div>
+                  ))}
                 </>
               )}
             </div>
@@ -127,7 +123,7 @@ export default function HomePage() {
           <div className="grid grid-cols-3 gap-4 text-center md:gap-8">
             <div>
               <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
-                {totalGames}
+                {gameCount.isLoading ? <div className="mx-auto h-10 w-24 animate-pulse rounded bg-muted" /> : totalGames}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                 Games
@@ -135,7 +131,7 @@ export default function HomePage() {
             </div>
             <div>
               <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
-                {totalPlayers}
+                {playerCount.isLoading ? <div className="mx-auto h-10 w-24 animate-pulse rounded bg-muted" /> : totalPlayers}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                 Players
@@ -143,7 +139,7 @@ export default function HomePage() {
             </div>
             <div>
               <div className="mb-1 font-heading text-3xl font-bold text-primary sm:text-4xl md:text-5xl">
-                {totalVideos}
+                {videoCount.isLoading ? <div className="mx-auto h-10 w-24 animate-pulse rounded bg-muted" /> : totalVideos}
               </div>
               <div className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                 Videos
@@ -228,6 +224,7 @@ export default function HomePage() {
                           src={game.video.thumbnailUrl}
                           alt={game.video.title}
                           fill
+                          unoptimized
                           className="object-cover transition group-hover:scale-105"
                         />
                       </div>

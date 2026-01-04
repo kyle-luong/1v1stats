@@ -9,6 +9,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import { trpc } from "@/lib/trpc/client";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,6 +19,8 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const ensureProfile = trpc.user.create.useMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -25,7 +28,7 @@ function LoginForm() {
 
     try {
       const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -34,6 +37,19 @@ function LoginForm() {
         setError(signInError.message);
         setIsLoading(false);
         return;
+      }
+
+      // Sync profile with database (self-healing for legacy/broken users)
+      if (authData.user) {
+        try {
+          await ensureProfile.mutateAsync({
+            id: authData.user.id,
+            email: authData.user.email!,
+          });
+        } catch (syncError) {
+          console.error("Failed to sync user profile:", syncError);
+          // Continue anyway, user can still access public pages
+        }
       }
 
       // Redirect to intended destination or home

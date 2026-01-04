@@ -10,7 +10,19 @@ import { trpc } from "@/lib/trpc/client";
 import { formatDate } from "@/lib/utils";
 
 export default function GamesPage() {
-  const { data: games, isLoading, error } = trpc.game.getAll.useQuery();
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = trpc.game.getInfinite.useInfiniteQuery(
+    { limit: 21 },
+    { getNextPageParam: (lastPage) => lastPage.nextCursor }
+  );
+
+  const games = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,59 +69,75 @@ export default function GamesPage() {
         )}
         {/* eslint-enable react/no-array-index-key */}
 
-        {!isLoading && !error && games && games.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {games.map((game) => (
-              <Link
-                key={game.id}
-                href={`/games/${game.id}`}
-                className="group overflow-hidden rounded-lg border bg-card transition hover:shadow-lg"
-              >
-                {game.video?.thumbnailUrl && (
-                  <div className="relative aspect-video overflow-hidden bg-muted">
-                    <Image
-                      src={game.video.thumbnailUrl}
-                      alt={`${game.player1.name} vs ${game.player2.name}`}
-                      fill
-                      className="object-cover transition group-hover:scale-105"
-                    />
-                  </div>
-                )}
-
-                <div className="p-4">
-                  {/* Matchup */}
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-semibold">{game.player1.name}</div>
-                      <div className="text-2xl font-bold text-primary">
-                        {game.player1Score}
-                      </div>
-                    </div>
-                    <div className="px-4 font-heading text-sm text-muted-foreground">
-                      VS
-                    </div>
-                    <div className="flex-1 text-right">
-                      <div className="font-semibold">{game.player2.name}</div>
-                      <div className="text-2xl font-bold text-primary">
-                        {game.player2Score}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Meta info */}
-                  {game.video && (
-                    <div className="border-t pt-3 text-sm text-muted-foreground">
-                      <div className="truncate">{game.video.channelName}</div>
-                      <div>{formatDate(game.gameDate)}</div>
+        {!isLoading && !error && games.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {games.map((game) => (
+                <Link
+                  key={game.id}
+                  href={`/games/${game.id}`}
+                  className="group overflow-hidden rounded-lg border bg-card transition hover:shadow-lg"
+                >
+                  {game.video?.thumbnailUrl && (
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      <Image
+                        src={game.video.thumbnailUrl}
+                        alt={`${game.player1.name} vs ${game.player2.name}`}
+                        fill
+                        unoptimized
+                        className="object-cover transition group-hover:scale-105"
+                      />
                     </div>
                   )}
-                </div>
-              </Link>
-            ))}
-          </div>
+
+                  <div className="p-4">
+                    {/* Matchup */}
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-semibold">{game.player1.name}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {game.player1Score}
+                        </div>
+                      </div>
+                      <div className="px-4 font-heading text-sm text-muted-foreground">
+                        VS
+                      </div>
+                      <div className="flex-1 text-right">
+                        <div className="font-semibold">{game.player2.name}</div>
+                        <div className="text-2xl font-bold text-primary">
+                          {game.player2Score}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Meta info */}
+                    {game.video && (
+                      <div className="border-t pt-3 text-sm text-muted-foreground">
+                        <div className="truncate">{game.video.channelName}</div>
+                        <div>{formatDate(game.gameDate)}</div>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {hasNextPage && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="rounded bg-primary px-6 py-2 font-heading text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+                >
+                  {isFetchingNextPage ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
         )}
 
-        {!isLoading && !error && (!games || games.length === 0) && (
+        {!isLoading && !error && games.length === 0 && (
           <div className="py-12 text-center text-muted-foreground">
             No games recorded yet. Check back soon!
           </div>
