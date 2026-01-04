@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/components/layout/Navbar";
 
 interface ErrorProps {
   error: Error & { digest?: string };

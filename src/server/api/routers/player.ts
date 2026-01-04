@@ -8,6 +8,11 @@ import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
 
 export const playerRouter = createTRPCRouter({
   /**
+   * Get total player count
+   */
+  getCount: publicProcedure.query(async ({ ctx }) => ctx.db.player.count()),
+
+  /**
    * Get all players with optional search
    */
   getAll: publicProcedure

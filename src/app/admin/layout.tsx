@@ -3,7 +3,7 @@
  * Shared layout for all admin pages with sidebar navigation
  */
 
-import { AdminNav } from "@/components/AdminNav";
+import { AdminNav } from "@/components/layout/AdminNav";
 
 export default function AdminLayout({
   children,

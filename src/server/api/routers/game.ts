@@ -25,6 +25,30 @@ const statInputSchema = z.object({
 
 export const gameRouter = createTRPCRouter({
   /**
+   * Get total game count
+   */
+  getCount: publicProcedure.query(async ({ ctx }) => ctx.db.game.count()),
+
+  /**
+   * Get recent games with player and video info (for homepage)
+   */
+  getRecent: publicProcedure
+    .input(z.object({ limit: z.number().min(1).max(20).default(6) }).optional())
+    .query(async ({ ctx, input }) =>
+      ctx.db.game.findMany({
+        take: input?.limit ?? 6,
+        include: {
+          video: true,
+          player1: true,
+          player2: true,
+        },
+        orderBy: {
+          gameDate: "desc",
+        },
+      })
+    ),
+
+  /**
    * Get all games
    */
   getAll: publicProcedure.query(async ({ ctx }) =>
