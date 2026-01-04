@@ -26,7 +26,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isContributeActive =
-    pathname === "/submit" || pathname === "/donate";
+    pathname === "/submit" || pathname === "/donate" || pathname === "/feedback";
 
   return (
     <nav className="border-b bg-card">
@@ -76,6 +76,11 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link href="/donate" className="w-full cursor-pointer">
                     Donate
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/feedback" className="w-full cursor-pointer">
+                    Feedback
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -154,6 +159,18 @@ export function Navbar() {
                   )}
                 >
                   Donate
+                </Link>
+                <Link
+                  href="/feedback"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-2 text-sm transition-colors hover:text-primary",
+                    pathname === "/feedback"
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  Feedback
                 </Link>
               </div>
             </div>
