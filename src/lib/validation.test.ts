@@ -91,8 +91,8 @@ describe("validateGameStats", () => {
       const result = validateGameStats({
         player1Name: "Cash",
         player2Name: "Hezi",
-        player1Score: "100",
-        player2Score: "98",
+        player1Score: "35",
+        player2Score: "33",
       });
       expect(result.isValid).toBe(true);
       expect(result.hasGameStats).toBe(true);
@@ -126,7 +126,7 @@ describe("validateGameStats", () => {
       const result = validateGameStats({
         player1Name: "Cash",
         player2Name: "Hezi",
-        player1Score: "1000",
+        player1Score: "100",
         player2Score: "21",
       });
       expect(result.isValid).toBe(false);
