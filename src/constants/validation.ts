@@ -5,7 +5,7 @@
  * Maximum allowed score for a single game
  * Typical 1v1 games go to 21 or 30, but some formats go higher
  */
-export const MAX_GAME_SCORE = 999;
+export const MAX_GAME_SCORE = 35;
 
 /**
  * Minimum allowed score (cannot be negative)
@@ -20,7 +20,7 @@ export const MAX_NOTE_LENGTH = 500;
 /**
  * Maximum length for player names
  */
-export const MAX_PLAYER_NAME_LENGTH = 100;
+export const MAX_PLAYER_NAME_LENGTH = 25;
 
 /**
  * Maximum number of aliases per player
