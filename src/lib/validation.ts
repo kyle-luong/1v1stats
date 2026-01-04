@@ -1,7 +1,7 @@
 // src/lib/validation.ts
 // Form validation utilities for the submit page
 
-import { MAX_GAME_SCORE } from "@/constants/validation";
+import { MAX_GAME_SCORE, MIN_GAME_SCORE } from "@/constants/validation";
 
 export interface GameStatsInput {
   player1Name: string;
@@ -57,7 +57,7 @@ export function validateGameStats(input: GameStatsInput): GameStatsValidationRes
     };
   }
 
-  if (p1Score < 0 || p2Score < 0) {
+  if (p1Score < MIN_GAME_SCORE || p2Score < MIN_GAME_SCORE) {
     return {
       isValid: false,
       error: "Scores must be positive numbers",
