@@ -1,5 +1,5 @@
 // Prisma Database Schema
-// Defines all database models for the Isostat basketball statistics platform
+// Defines all database models for the 1v1stats basketball statistics platform
 //
 // Models:
 // - Player: Basketball players (can appear in multiple games)
@@ -44,13 +44,29 @@ model User {
 
 model Player {
   id              String   @id @default(cuid())
-  name            String
-  aliases         String[] // YouTube name variations
-  instagramHandle String?
-  height          String? // e.g., "6'2\""
-  position        String? // Guard, Forward, etc.
-  location        String? // City, State
+  name            String   // Display name (what they go by)
+  fullName        String?  // Full legal name
+  aliases         String[] // Other names used in videos
+  bio             String?  // Player description/bio
+  
+  // Physical info
+  height          String?  // e.g., "6'2\""
+  weight          String?  // e.g., "185 lbs"
+  
+  // Location
+  hometown        String?  // Where they're from originally
+  location        String?  // Current city/state
+  
+  // Personal
+  birthDate       DateTime? // Date of birth
   imageUrl        String?
+  
+  // Social links
+  instagramHandle String?
+  twitterHandle   String?
+  youtubeChannel  String?
+  tiktokHandle    String?
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -79,6 +95,13 @@ model Video {
   submittedBy    User?   @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
   submitterEmail String? // Fallback for anonymous submissions
   submitterNote  String? // Optional context
+
+  // Submitted game info (unverified, from submitter)
+  // These are required on submission but stored here until admin approves
+  submittedPlayer1Name  String?
+  submittedPlayer2Name  String?
+  submittedPlayer1Score Int?
+  submittedPlayer2Score Int?
 
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
@@ -143,7 +166,7 @@ model Ruleset {
   description    String?
 
   // Scoring rules
-  scoringTarget  Int      @default(21) // 21, 30, etc.
+  scoringTarget  Int      @default(30) // 21, 30, etc.
   shotValues     String   @default("1s-2s") // "1s-2s" or "2s-3s"
 
   // Game format

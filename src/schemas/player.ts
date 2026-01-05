@@ -28,7 +28,6 @@ export const playerCreateSchema = z.object({
   aliases: z.array(z.string()).max(MAX_PLAYER_ALIASES).default([]),
   instagramHandle: optionalString,
   height: optionalString,
-  position: optionalString,
   location: optionalString,
   imageUrl: optionalUrl,
 });
@@ -42,7 +41,6 @@ export const playerUpdateSchema = z.object({
   aliases: z.array(z.string()).max(MAX_PLAYER_ALIASES).optional(),
   instagramHandle: optionalString,
   height: optionalString,
-  position: optionalString,
   location: optionalString,
   imageUrl: optionalUrl,
 });
