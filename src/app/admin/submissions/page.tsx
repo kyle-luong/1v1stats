@@ -835,23 +835,21 @@ export default function AdminSubmissionsPage() {
   });
 
   const handleReject = async (id: string) => {
-    // eslint-disable-next-line no-alert
-    if (
-      window.confirm(
-        "Reject this submission?\n\nIt will be marked as rejected but stay in the database."
-      )
-    ) {
+    // eslint-disable-next-line no-alert -- confirmation before destructive action
+    const confirmed = window.confirm(
+      "Reject this submission?\n\nIt will be marked as rejected but stay in the database."
+    );
+    if (confirmed) {
       await rejectMutation.mutateAsync({ id });
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    // eslint-disable-next-line no-alert
-    if (
-      window.confirm(
-        `PERMANENTLY DELETE this submission?\n\n"${title}"\n\nThis removes it from the database entirely and allows re-submission.`
-      )
-    ) {
+    // eslint-disable-next-line no-alert -- confirmation before destructive action
+    const confirmed = window.confirm(
+      `PERMANENTLY DELETE this submission?\n\n"${title}"\n\nThis removes it from the database entirely and allows re-submission.`
+    );
+    if (confirmed) {
       await deleteMutation.mutateAsync({ id });
     }
   };
