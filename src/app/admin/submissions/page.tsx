@@ -70,11 +70,15 @@ function AdminSubmitModal({ onClose, onSuccess }: AdminSubmitModalProps) {
         setTitle(data.title);
         setChannelName(data.channelName);
         setThumbnailUrl(data.thumbnailUrl);
-        setUploadedAt(data.uploadedAt instanceof Date ? data.uploadedAt : new Date(data.uploadedAt));
+        setUploadedAt(
+          data.uploadedAt instanceof Date ? data.uploadedAt : new Date(data.uploadedAt)
+        );
         setDuration(data.duration);
         setMetadataFetched(true);
       } catch (err) {
-        setError(`Could not fetch video info: ${err instanceof Error ? err.message : "Unknown error"}`);
+        setError(
+          `Could not fetch video info: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
         setMetadataFetched(false);
       } finally {
         setIsFetchingMetadata(false);
@@ -174,7 +178,9 @@ function AdminSubmitModal({ onClose, onSuccess }: AdminSubmitModalProps) {
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold">Add Game</h2>
-            <p className="text-sm text-muted-foreground">Submit a game directly (instant approval)</p>
+            <p className="text-sm text-muted-foreground">
+              Submit a game directly (instant approval)
+            </p>
           </div>
           <button
             type="button"
@@ -183,7 +189,12 @@ function AdminSubmitModal({ onClose, onSuccess }: AdminSubmitModalProps) {
             className="rounded p-1 hover:bg-secondary"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -224,7 +235,9 @@ function AdminSubmitModal({ onClose, onSuccess }: AdminSubmitModalProps) {
                     </p>
                   )}
                   {duration && (
-                    <p className="text-xs text-muted-foreground">Duration: {formatDuration(duration)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Duration: {formatDuration(duration)}
+                    </p>
                   )}
                 </div>
               </div>
@@ -835,23 +848,21 @@ export default function AdminSubmissionsPage() {
   });
 
   const handleReject = async (id: string) => {
-    // eslint-disable-next-line no-alert
-    if (
-      window.confirm(
-        "Reject this submission?\n\nIt will be marked as rejected but stay in the database."
-      )
-    ) {
+    // eslint-disable-next-line no-alert -- confirmation before destructive action
+    const confirmed = window.confirm(
+      "Reject this submission?\n\nIt will be marked as rejected but stay in the database."
+    );
+    if (confirmed) {
       await rejectMutation.mutateAsync({ id });
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    // eslint-disable-next-line no-alert
-    if (
-      window.confirm(
-        `PERMANENTLY DELETE this submission?\n\n"${title}"\n\nThis removes it from the database entirely and allows re-submission.`
-      )
-    ) {
+    // eslint-disable-next-line no-alert -- confirmation before destructive action
+    const confirmed = window.confirm(
+      `PERMANENTLY DELETE this submission?\n\n"${title}"\n\nThis removes it from the database entirely and allows re-submission.`
+    );
+    if (confirmed) {
       await deleteMutation.mutateAsync({ id });
     }
   };
@@ -1107,4 +1118,3 @@ export default function AdminSubmissionsPage() {
     </div>
   );
 }
-
