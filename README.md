@@ -1,4 +1,4 @@
-# Isostat
+# 1v1stats
 
 A platform for tracking and analyzing statistics from 1v1 basketball YouTube videos.
 
@@ -33,6 +33,7 @@ DATABASE_URL="postgresql://..."
 NEXT_PUBLIC_SUPABASE_URL="https://xxx.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJxxx..."
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+YOUTUBE_API_KEY=AIzaSy...
 ```
 
 ## Available scripts
@@ -57,7 +58,6 @@ npx tsx scripts/make-admin.ts user@example.com
 ```
 
 3. Log in to verify access at `/admin/dashboard`
-
 
 ## Database
 
@@ -85,7 +85,7 @@ Type-safe API via tRPC with modular routers:
 ## Project structure
 
 ```
-isostat/
+1v1stats/
 ├── src/
 │   ├── app/              # Next.js pages and routes
 │   ├── components/       # React components
