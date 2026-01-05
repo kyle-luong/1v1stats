@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { VideoStatus } from "@prisma/client";
+import { fetchYoutubeMetadata } from "@/lib/youtube";
 import { createTRPCRouter, publicProcedure, adminProcedure } from "../trpc";
 
 // Simple in-memory rate limiter
@@ -12,16 +13,24 @@ const submissionRateLimit = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX_REQUESTS = 5;
 
-// Helper for sanitization
-const sanitize = (str: string) =>
-  str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+// Note: React automatically escapes output, so we don't need HTML entity encoding
+// The sanitize function was causing double-encoding issues with YouTube titles
 
 export const videoRouter = createTRPCRouter({
+  /**
+   * Fetch YouTube video metadata from video ID
+   * Used to auto-populate submission form
+   */
+  getYoutubeMetadata: publicProcedure
+    .input(z.object({ videoId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        return await fetchYoutubeMetadata(input.videoId);
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to fetch video metadata");
+      }
+    }),
+
   /**
    * Get all videos with optional filters
    */
@@ -73,9 +82,9 @@ export const videoRouter = createTRPCRouter({
       },
     })
   ),
-  
+
   /**
-   * Submit a new video (authentication optional, links to user if logged in)
+   * Submit a new video with game info (authentication optional)
    */
   submit: publicProcedure
     .input(
@@ -85,37 +94,63 @@ export const videoRouter = createTRPCRouter({
         title: z.string(),
         channelName: z.string(),
         thumbnailUrl: z.string().url().optional(),
+        uploadedAt: z.date().optional(),
+        duration: z.number().int().optional(),
         submitterEmail: z.string().email().optional(),
         submitterNote: z.string().max(500).optional(),
+        // Game info (required for submission)
+        player1Name: z.string().min(1),
+        player2Name: z.string().min(1),
+        player1Score: z.number().int().min(0),
+        player2Score: z.number().int().min(0),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Validate scores are different (no ties)
+      if (input.player1Score === input.player2Score) {
+        throw new Error("Game cannot end in a tie. One player must win.");
+      }
+
       // Rate Limiting (IP-based)
       const ip = ctx.headers.get("x-forwarded-for") || "unknown";
       const now = Date.now();
       const userRequests = submissionRateLimit.get(ip) || [];
-      
+
       // Filter out old requests
       const recentRequests = userRequests.filter((time) => now - time < RATE_LIMIT_WINDOW);
-      
+
       if (recentRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
         throw new Error("Rate limit exceeded. Please try again later.");
       }
-      
+
       submissionRateLimit.set(ip, [...recentRequests, now]);
 
-      // Sanitization
-      const sanitizedData = {
-        ...input,
-        title: sanitize(input.title),
-        channelName: sanitize(input.channelName),
-        submitterNote: input.submitterNote ? sanitize(input.submitterNote) : undefined,
-      };
+      // Check if video already exists
+      const existingVideo = await ctx.db.video.findUnique({
+        where: { youtubeId: input.youtubeId },
+      });
+
+      if (existingVideo) {
+        throw new Error("This video has already been submitted.");
+      }
 
       return ctx.db.video.create({
         data: {
-          ...sanitizedData,
-          submittedById: ctx.user?.id, // Link to user if logged in
+          url: input.url,
+          youtubeId: input.youtubeId,
+          title: input.title,
+          channelName: input.channelName,
+          thumbnailUrl: input.thumbnailUrl,
+          uploadedAt: input.uploadedAt,
+          duration: input.duration,
+          submitterEmail: input.submitterEmail,
+          submitterNote: input.submitterNote || undefined,
+          submittedById: ctx.user?.id,
+          // Store submitted game info for admin review
+          submittedPlayer1Name: input.player1Name,
+          submittedPlayer2Name: input.player2Name,
+          submittedPlayer1Score: input.player1Score,
+          submittedPlayer2Score: input.player2Score,
         },
       });
     }),
@@ -184,4 +219,213 @@ export const videoRouter = createTRPCRouter({
       },
     })
   ),
+
+  /**
+   * Approve video and create game in one step (admin only)
+   * This is the unified approval flow
+   */
+  approveWithGame: adminProcedure
+    .input(
+      z.object({
+        videoId: z.string(),
+        player1Id: z.string(),
+        player2Id: z.string(),
+        player1Score: z.number().int().min(0),
+        player2Score: z.number().int().min(0),
+        isOfficial: z.boolean().optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Validate players are different
+      if (input.player1Id === input.player2Id) {
+        throw new Error("Cannot create a game with the same player twice");
+      }
+
+      // Validate scores are different (no ties)
+      if (input.player1Score === input.player2Score) {
+        throw new Error("Game cannot end in a tie. One player must win.");
+      }
+
+      // Get the video to verify it exists and is pending
+      const video = await ctx.db.video.findUnique({
+        where: { id: input.videoId },
+      });
+
+      if (!video) {
+        throw new Error("Video not found");
+      }
+
+      if (video.status === VideoStatus.COMPLETED) {
+        throw new Error("Video already has a game");
+      }
+
+      // Determine winner
+      const winnerId = input.player1Score > input.player2Score ? input.player1Id : input.player2Id;
+
+      // Use video upload date as game date, fallback to current date
+      const gameDate = video.uploadedAt ?? new Date();
+
+      // Create game and update video status in a transaction
+      const result = await ctx.db.$transaction(async (tx) => {
+        // Create the game
+        const game = await tx.game.create({
+          data: {
+            videoId: input.videoId,
+            player1Id: input.player1Id,
+            player2Id: input.player2Id,
+            player1Score: input.player1Score,
+            player2Score: input.player2Score,
+            winnerId,
+            isOfficial: input.isOfficial ?? false,
+            gameDate,
+            notes: input.notes,
+          },
+          include: {
+            player1: true,
+            player2: true,
+            video: true,
+          },
+        });
+
+        // Update video status to COMPLETED
+        await tx.video.update({
+          where: { id: input.videoId },
+          data: {
+            status: VideoStatus.COMPLETED,
+            processedAt: new Date(),
+          },
+        });
+
+        return game;
+      });
+
+      return result;
+    }),
+
+  /**
+   * Reject a video submission (admin only)
+   */
+  reject: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) =>
+    ctx.db.video.update({
+      where: { id: input.id },
+      data: { status: VideoStatus.FAILED },
+    })
+  ),
+
+  /**
+   * Delete a video completely (admin only)
+   * Removes from DB entirely - allows re-submission of same YouTube video
+   */
+  delete: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
+    // This will cascade delete any associated game/stats
+    await ctx.db.video.delete({
+      where: { id: input.id },
+    });
+    return { success: true };
+  }),
+
+  /**
+   * Re-open a rejected video for review (admin only)
+   * Moves FAILED back to PENDING
+   */
+  reopen: adminProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) =>
+    ctx.db.video.update({
+      where: { id: input.id },
+      data: { status: VideoStatus.PENDING },
+    })
+  ),
+
+  /**
+   * Admin direct submission (admin only)
+   * Creates video + game in one step, immediately approved
+   * Skips the normal approval workflow
+   */
+  adminSubmit: adminProcedure
+    .input(
+      z.object({
+        url: z.string().url(),
+        youtubeId: z.string(),
+        title: z.string(),
+        channelName: z.string(),
+        thumbnailUrl: z.string().url().optional(),
+        uploadedAt: z.date().optional(),
+        duration: z.number().int().optional(),
+        player1Id: z.string(),
+        player2Id: z.string(),
+        player1Score: z.number().int().min(0),
+        player2Score: z.number().int().min(0),
+        isOfficial: z.boolean().optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Validate players are different
+      if (input.player1Id === input.player2Id) {
+        throw new Error("Cannot create a game with the same player twice");
+      }
+
+      // Validate scores are different (no ties)
+      if (input.player1Score === input.player2Score) {
+        throw new Error("Game cannot end in a tie. One player must win.");
+      }
+
+      // Check if video already exists
+      const existingVideo = await ctx.db.video.findUnique({
+        where: { youtubeId: input.youtubeId },
+      });
+
+      if (existingVideo) {
+        throw new Error("This video has already been submitted.");
+      }
+
+      // Determine winner
+      const winnerId = input.player1Score > input.player2Score ? input.player1Id : input.player2Id;
+
+      // Use video upload date as game date, fallback to current date
+      const gameDate = input.uploadedAt ?? new Date();
+
+      // Create video and game in a transaction
+      const result = await ctx.db.$transaction(async (tx) => {
+        // Create the video (already approved)
+        const video = await tx.video.create({
+          data: {
+            url: input.url,
+            youtubeId: input.youtubeId,
+            title: input.title,
+            channelName: input.channelName,
+            thumbnailUrl: input.thumbnailUrl,
+            uploadedAt: input.uploadedAt,
+            duration: input.duration,
+            status: VideoStatus.COMPLETED,
+            processedAt: new Date(),
+            submittedById: ctx.user?.id,
+          },
+        });
+
+        // Create the game
+        const game = await tx.game.create({
+          data: {
+            videoId: video.id,
+            player1Id: input.player1Id,
+            player2Id: input.player2Id,
+            player1Score: input.player1Score,
+            player2Score: input.player2Score,
+            winnerId,
+            isOfficial: input.isOfficial ?? false,
+            gameDate,
+            notes: input.notes,
+          },
+          include: {
+            player1: true,
+            player2: true,
+            video: true,
+          },
+        });
+
+        return game;
+      });
+
+      return result;
+    }),
 });

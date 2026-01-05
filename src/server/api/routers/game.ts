@@ -213,4 +213,116 @@ export const gameRouter = createTRPCRouter({
 
       return game;
     }),
+
+  /**
+   * Update game data (admin only)
+   */
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        player1Id: z.string().optional(),
+        player2Id: z.string().optional(),
+        player1Score: z.number().int().min(0).optional(),
+        player2Score: z.number().int().min(0).optional(),
+        isOfficial: z.boolean().optional(),
+        gameDate: z.date().optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...updateData } = input;
+
+      // Get current game to determine winner if scores changed
+      const currentGame = await ctx.db.game.findUnique({
+        where: { id },
+      });
+
+      if (!currentGame) {
+        throw new Error("Game not found");
+      }
+
+      // Calculate new scores (use existing if not provided)
+      const player1Score = updateData.player1Score ?? currentGame.player1Score;
+      const player2Score = updateData.player2Score ?? currentGame.player2Score;
+      const player1Id = updateData.player1Id ?? currentGame.player1Id;
+      const player2Id = updateData.player2Id ?? currentGame.player2Id;
+
+      // Validate no ties
+      if (player1Score === player2Score) {
+        throw new Error("Game cannot end in a tie. One player must win.");
+      }
+
+      // Validate different players
+      if (player1Id === player2Id) {
+        throw new Error("Cannot have the same player twice");
+      }
+
+      // Recalculate winner
+      const winnerId = player1Score > player2Score ? player1Id : player2Id;
+
+      return ctx.db.game.update({
+        where: { id },
+        data: {
+          ...updateData,
+          player1Id,
+          player2Id,
+          player1Score,
+          player2Score,
+          winnerId,
+        },
+        include: {
+          player1: true,
+          player2: true,
+          video: true,
+        },
+      });
+    }),
+
+  /**
+   * Delete game (admin only)
+   * Options:
+   * - deleteVideo: false → Keep video as FAILED (prevents re-submission)
+   * - deleteVideo: true → Delete both game and video (allows re-submission)
+   */
+  delete: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        deleteVideo: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Get game to find associated video
+      const game = await ctx.db.game.findUnique({
+        where: { id: input.id },
+        select: { videoId: true },
+      });
+
+      if (!game) {
+        throw new Error("Game not found");
+      }
+
+      await ctx.db.$transaction(async (tx) => {
+        // Delete the game (cascade will delete stats)
+        await tx.game.delete({
+          where: { id: input.id },
+        });
+
+        if (input.deleteVideo) {
+          // Completely remove video from DB (allows re-submission)
+          await tx.video.delete({
+            where: { id: game.videoId },
+          });
+        } else {
+          // Mark video as failed/rejected (prevents re-submission)
+          await tx.video.update({
+            where: { id: game.videoId },
+            data: { status: VideoStatus.FAILED },
+          });
+        }
+      });
+
+      return { success: true };
+    }),
 });
