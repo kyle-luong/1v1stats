@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
 import { TRPCProvider } from "@/lib/trpc/Provider";
+import { VisitTracker } from "@/components/common";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${oswald.variable} font-sans`}>
-        <TRPCProvider>{children}</TRPCProvider>
+        <TRPCProvider>
+          <VisitTracker />
+          {children}
+        </TRPCProvider>
       </body>
     </html>
   );
