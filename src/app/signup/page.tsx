@@ -79,7 +79,7 @@ export default function SignupPage() {
         <div className="space-y-6 rounded-lg border bg-card p-8">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Create Account</h1>
-            <p className="text-sm text-muted-foreground">Join the Isostat community</p>
+            <p className="text-sm text-muted-foreground">Join the 1v1stats community</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
