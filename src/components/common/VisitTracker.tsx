@@ -16,7 +16,8 @@ export function VisitTracker() {
       hasTracked.current = true;
       trackVisit.mutate();
     }
-  }, [trackVisit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run once on mount
+  }, []);
 
   return null;
 }
