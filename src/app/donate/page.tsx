@@ -11,7 +11,7 @@ export default function DonatePage() {
       <div className="container mx-auto px-4 py-16">
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="mb-4 font-heading text-4xl font-semibold uppercase tracking-wide md:text-5xl">
-            Support Isostat
+            Support 1v1stats
           </h1>
           <p className="mb-8 text-lg text-muted-foreground">
             Help us build the best 1v1 basketball statistics platform
@@ -31,7 +31,7 @@ export default function DonatePage() {
             </p>
 
             <p className="text-sm text-muted-foreground">
-              In the meantime, the best way to support Isostat is by{" "}
+              In the meantime, the best way to support 1v1stats is by{" "}
               <Link href="/submit" className="text-primary hover:underline">
                 submitting game data
               </Link>

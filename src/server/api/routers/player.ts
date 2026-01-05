@@ -20,7 +20,7 @@ export const playerRouter = createTRPCRouter({
       z
         .object({
           search: z.string().optional(),
-          limit: z.number().min(1).max(100).default(50),
+          limit: z.number().min(1).max(1000).default(50),
         })
         .optional()
     )
@@ -123,12 +123,19 @@ export const playerRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
+        fullName: z.string().optional(),
         aliases: z.array(z.string()).default([]),
-        instagramHandle: z.string().optional(),
+        bio: z.string().optional(),
         height: z.string().optional(),
-        position: z.string().optional(),
+        weight: z.string().optional(),
+        hometown: z.string().optional(),
         location: z.string().optional(),
+        birthDate: z.date().optional(),
         imageUrl: z.string().url().optional().or(z.literal("")),
+        instagramHandle: z.string().optional(),
+        twitterHandle: z.string().optional(),
+        youtubeChannel: z.string().optional(),
+        tiktokHandle: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -149,12 +156,19 @@ export const playerRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         name: z.string().min(1).optional(),
+        fullName: z.string().optional(),
         aliases: z.array(z.string()).optional(),
-        instagramHandle: z.string().optional(),
+        bio: z.string().optional(),
         height: z.string().optional(),
-        position: z.string().optional(),
+        weight: z.string().optional(),
+        hometown: z.string().optional(),
         location: z.string().optional(),
+        birthDate: z.date().optional(),
         imageUrl: z.string().url().optional().or(z.literal("")),
+        instagramHandle: z.string().optional(),
+        twitterHandle: z.string().optional(),
+        youtubeChannel: z.string().optional(),
+        tiktokHandle: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

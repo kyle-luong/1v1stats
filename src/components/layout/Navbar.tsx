@@ -35,7 +35,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <span className="font-heading text-2xl font-semibold tracking-wide text-foreground">
-              ISOSTAT
+              1V1STATS
             </span>
           </Link>
 

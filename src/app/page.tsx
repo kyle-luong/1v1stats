@@ -36,7 +36,7 @@ export default function HomePage() {
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <h1 className="mb-4 font-heading text-5xl font-semibold uppercase tracking-wide md:text-6xl lg:text-7xl">
-            Isostat
+            1v1stats
           </h1>
           <p className="mb-2 font-heading text-xl uppercase tracking-wider text-primary md:text-2xl">
             1v1 Basketball Statistics
@@ -361,7 +361,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
               <div>
                 <h3 className="mb-4 font-heading text-lg font-medium uppercase tracking-wide">
-                  Isostat
+                  1v1stats
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   Community-driven basketball analytics from YouTube 1v1 videos.
@@ -454,7 +454,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-              {new Date().getFullYear()} Isostat. All rights reserved.
+              {new Date().getFullYear()} 1v1stats. All rights reserved.
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@
 "use client";
 
 import { trpc } from "@/lib/trpc/client";
+import { PageHeader } from "@/components/common/PageHeader";
 import Link from "next/link";
 
 export default function AdminDashboardPage() {
@@ -15,45 +16,67 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of platform statistics</p>
-      </div>
+      <PageHeader title="Dashboard" subtitle="Overview of platform statistics" />
 
       {/* Stats Overview */}
-      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-        <div className="rounded-lg border bg-card p-6">
-          <div className="mb-1 text-sm text-muted-foreground">Total Videos</div>
-          <div className="text-3xl font-bold">{videoStats.data?.total || 0}</div>
-        </div>
-        <div className="rounded-lg border bg-card p-6">
-          <div className="mb-1 text-sm text-muted-foreground">Pending Review</div>
-          <div className="text-3xl font-bold text-yellow-600">
-            {videoStats.data?.byStatus.pending || 0}
+      <section className="mb-10">
+        <h2 className="mb-4 font-heading text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Statistics
+        </h2>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg border bg-card p-6">
+            <div className="mb-1 font-heading text-xs uppercase tracking-wider text-muted-foreground">
+              Total Submissions
+            </div>
+            <div className="font-heading text-3xl font-bold text-primary">
+              {videoStats.data?.total || 0}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6">
+            <div className="mb-1 font-heading text-xs uppercase tracking-wider text-muted-foreground">
+              Pending Approval
+            </div>
+            <div className="font-heading text-3xl font-bold text-yellow-600">
+              {videoStats.data?.byStatus.pending || 0}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6">
+            <div className="mb-1 font-heading text-xs uppercase tracking-wider text-muted-foreground">
+              Total Players
+            </div>
+            <div className="font-heading text-3xl font-bold text-primary">
+              {players.data?.length || 0}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-6">
+            <div className="mb-1 font-heading text-xs uppercase tracking-wider text-muted-foreground">
+              Approved Games
+            </div>
+            <div className="font-heading text-3xl font-bold text-primary">
+              {games.data?.length || 0}
+            </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6">
-          <div className="mb-1 text-sm text-muted-foreground">Total Players</div>
-          <div className="text-3xl font-bold">{players.data?.length || 0}</div>
-        </div>
-        <div className="rounded-lg border bg-card p-6">
-          <div className="mb-1 text-sm text-muted-foreground">Total Games</div>
-          <div className="text-3xl font-bold">{games.data?.length || 0}</div>
-        </div>
-      </div>
+      </section>
 
       {/* Quick Links */}
-      <div className="rounded-lg border bg-card p-6">
-        <h2 className="mb-4 text-xl font-semibold">Quick Actions</h2>
+      <section>
+        <h2 className="mb-4 font-heading text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          Quick Actions
+        </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
-            href="/admin/videos"
-            className="rounded-lg border p-4 transition hover:bg-secondary"
+            href="/admin/submissions"
+            className="group rounded-lg border bg-card p-6 transition hover:border-primary hover:shadow-md"
           >
-            <h3 className="mb-1 font-semibold">Video Moderation</h3>
-            <p className="text-sm text-muted-foreground">Review and approve submitted videos</p>
+            <h3 className="mb-2 font-heading text-lg font-medium uppercase tracking-wide transition group-hover:text-primary">
+              Submissions
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Review, approve, or reject submissions
+            </p>
             {videoStats.data && videoStats.data.byStatus.pending > 0 && (
-              <div className="mt-2 inline-block rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
+              <div className="mt-3 inline-block rounded bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
                 {videoStats.data.byStatus.pending} pending
               </div>
             )}
@@ -61,23 +84,25 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/admin/players"
-            className="rounded-lg border p-4 transition hover:bg-secondary"
+            className="group rounded-lg border bg-card p-6 transition hover:border-primary hover:shadow-md"
           >
-            <h3 className="mb-1 font-semibold">Player Management</h3>
+            <h3 className="mb-2 font-heading text-lg font-medium uppercase tracking-wide transition group-hover:text-primary">
+              Players
+            </h3>
             <p className="text-sm text-muted-foreground">Create and edit player profiles</p>
           </Link>
 
           <Link
             href="/admin/games"
-            className="rounded-lg border p-4 transition hover:bg-secondary"
+            className="group rounded-lg border bg-card p-6 transition hover:border-primary hover:shadow-md"
           >
-            <h3 className="mb-1 font-semibold">Game Entry</h3>
-            <p className="text-sm text-muted-foreground">
-              Link videos to players and enter scores
-            </p>
+            <h3 className="mb-2 font-heading text-lg font-medium uppercase tracking-wide transition group-hover:text-primary">
+              Games
+            </h3>
+            <p className="text-sm text-muted-foreground">View, edit, and delete games</p>
           </Link>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

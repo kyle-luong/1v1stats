@@ -68,7 +68,7 @@ function LoginForm() {
         <div className="space-y-6 rounded-lg border bg-card p-8">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Welcome Back</h1>
-            <p className="text-sm text-muted-foreground">Sign in to your Isostat account</p>
+            <p className="text-sm text-muted-foreground">Sign in to your 1v1stats account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -7,7 +7,7 @@
 
 import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
-import Link from "next/link";
+import { PageHeader } from "@/components/common/PageHeader";
 import PlayerFormModal from "./PlayerFormModal";
 
 export default function AdminPlayersPage() {
@@ -50,62 +50,77 @@ export default function AdminPlayersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">Player Management</h1>
-            <p className="text-muted-foreground">Create and manage player profiles</p>
-          </div>
-          <Link
-            href="/admin/dashboard"
-            className="rounded-md bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
-
-        {/* Search and Create */}
-        <div className="mb-6 flex gap-4">
-          <input
-            type="text"
-            placeholder="Search players by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 rounded-md border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <PageHeader
+            title="Players"
+            subtitle="Create and manage player profiles"
+            className="mb-0"
           />
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="rounded-md bg-primary px-6 py-2 text-primary-foreground hover:bg-primary/90"
+            className="shrink-0 rounded bg-primary px-6 py-3 font-heading text-sm font-medium uppercase tracking-wider text-primary-foreground transition hover:bg-primary/90"
           >
-            Create New Player
+            + New Player
           </button>
         </div>
 
+        {/* Search */}
+        <section className="mb-6">
+          <h2 className="mb-3 font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Search Players
+          </h2>
+          <input
+            type="text"
+            placeholder="Search by name or alias..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-md rounded border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </section>
+
         {/* Players Table */}
-        <div className="overflow-hidden rounded-lg border bg-card">
-          {players.isLoading && (
-            <div className="p-8 text-center text-muted-foreground">Loading players...</div>
-          )}
-          {!players.isLoading && players.data?.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground">
-              No players found. Create your first player to get started!
-            </div>
-          )}
-          {!players.isLoading && players.data && players.data.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-secondary/50">
-                  <tr>
-                    <th className="p-4 text-left">Name</th>
-                    <th className="p-4 text-left">Aliases</th>
-                    <th className="p-4 text-left">Height</th>
-                    <th className="p-4 text-left">Position</th>
-                    <th className="p-4 text-left">Location</th>
-                    <th className="p-4 text-left">Games</th>
-                    <th className="p-4 text-left">Instagram</th>
-                    <th className="p-4 text-right">Actions</th>
-                  </tr>
-                </thead>
+        <section>
+          <h2 className="mb-3 font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            All Players
+          </h2>
+          <div className="overflow-hidden rounded-lg border bg-card">
+            {players.isLoading && (
+              <div className="p-8 text-center text-muted-foreground">Loading players...</div>
+            )}
+            {!players.isLoading && players.data?.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground">
+                No players found. Create your first player to get started!
+              </div>
+            )}
+            {!players.isLoading && players.data && players.data.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b bg-secondary/30">
+                    <tr>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Name
+                      </th>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Aliases
+                      </th>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Height
+                      </th>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Location
+                      </th>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Games
+                      </th>
+                      <th className="p-4 text-left font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Instagram
+                      </th>
+                      <th className="p-4 text-right font-heading text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {players.data.map((player) => {
                     const totalGames = player.gamesAsPlayer1.length + player.gamesAsPlayer2.length;
@@ -131,11 +146,6 @@ export default function AdminPlayersPage() {
                         <td className="p-4">
                           <div className="text-sm">
                             {player.height || <span className="text-muted-foreground/50">—</span>}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="text-sm">
-                            {player.position || <span className="text-muted-foreground/50">—</span>}
                           </div>
                         </td>
                         <td className="p-4">
@@ -192,9 +202,10 @@ export default function AdminPlayersPage() {
                   })}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        </section>
       </div>
 
       {/* Create Modal */}

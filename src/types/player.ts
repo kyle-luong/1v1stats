@@ -23,7 +23,6 @@ export interface PlayerFormData {
   aliases: string[];
   instagramHandle?: string;
   height?: string;
-  position?: string;
   location?: string;
   imageUrl?: string;
 }

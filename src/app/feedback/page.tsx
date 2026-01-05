@@ -13,7 +13,7 @@ export default function FeedbackPage() {
             Feedback
           </h1>
           <p className="mb-8 text-center text-lg text-muted-foreground">
-            Help us improve Isostat
+            Help us improve 1v1stats
           </p>
 
           <div className="rounded border bg-card p-8">
@@ -43,7 +43,7 @@ export default function FeedbackPage() {
                   Suggest a Feature
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Have an idea to make Isostat better? We&apos;d love to hear
+                  Have an idea to make 1v1stats better? We&apos;d love to hear
                   it.
                 </p>
               </div>

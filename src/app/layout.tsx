@@ -21,7 +21,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "Isostat - Basketball 1v1 Statistics",
+  title: "1v1stats - Basketball 1v1 Statistics",
   description: "Track and analyze statistics from 1v1 basketball videos",
 };
 
