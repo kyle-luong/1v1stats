@@ -20,7 +20,7 @@ function calculateAge(birthDate: Date): number {
   let age = today.getFullYear() - birth.getFullYear();
   const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--;
+    age -= 1;
   }
   return age;
 }
@@ -118,17 +118,6 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const recentGames = allGames
     .sort((a, b) => new Date(b.gameDate).getTime() - new Date(a.gameDate).getTime())
     .slice(0, 10);
-
-  // Check if player has any profile info
-  const hasProfileInfo =
-    player.fullName ||
-    player.bio ||
-    player.height ||
-    player.weight ||
-    player.birthDate ||
-    player.hometown ||
-    player.location ||
-    (player.aliases && player.aliases.length > 0);
 
   const hasSocialLinks =
     player.instagramHandle ||
