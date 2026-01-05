@@ -73,7 +73,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
         <Navbar />
         <div className="flex min-h-[calc(100vh-64px)] items-center justify-center">
           <div className="text-center">
-          <h1 className="mb-2 text-2xl font-bold">Game Not Found</h1>
+            <h1 className="mb-2 text-2xl font-bold">Game Not Found</h1>
             <p className="text-muted-foreground">The game you are looking for does not exist.</p>
             <Link href="/videos" className="mt-4 inline-block text-primary hover:underline">
               Back to Videos
@@ -132,7 +132,6 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="space-y-1 text-sm text-muted-foreground">
                 {game.player1.height && <p>Height: {game.player1.height}</p>}
-                {game.player1.position && <p>Position: {game.player1.position}</p>}
                 {game.player1.location && <p>Location: {game.player1.location}</p>}
               </div>
             </div>
@@ -158,7 +157,6 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
               </div>
               <div className="space-y-1 text-sm text-muted-foreground">
                 {game.player2.height && <p>Height: {game.player2.height}</p>}
-                {game.player2.position && <p>Position: {game.player2.position}</p>}
                 {game.player2.location && <p>Location: {game.player2.location}</p>}
               </div>
             </div>
@@ -222,9 +220,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
                           href={`/players/${stat.playerId}`}
                           className="hover:text-primary hover:underline"
                         >
-                          {stat.playerId === game.player1Id
-                            ? game.player1.name
-                            : game.player2.name}
+                          {stat.playerId === game.player1Id ? game.player1.name : game.player2.name}
                         </Link>
                       </td>
                       <td className="px-4 py-3 text-center font-semibold">{stat.points}</td>
@@ -249,7 +245,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
             </div>
           ) : (
             <div className="py-8 text-center text-muted-foreground">
-              Detailed stats coming in Phase 3
+              Detailed stats coming soon..
             </div>
           )}
         </div>

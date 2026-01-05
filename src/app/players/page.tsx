@@ -99,7 +99,6 @@ export default function PlayersPage() {
 
                     <div className="mb-3 space-y-1 text-sm text-muted-foreground">
                       {player.height && <p>{player.height}</p>}
-                      {player.position && <p>{player.position}</p>}
                       {player.location && <p>{player.location}</p>}
                     </div>
 
