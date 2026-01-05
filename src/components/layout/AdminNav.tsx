@@ -15,24 +15,21 @@ const adminLinks = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
-    icon: "📊",
   },
   {
-    href: "/admin/videos",
-    label: "Videos",
-    icon: "🎥",
+    href: "/admin/submissions",
+    label: "Submissions",
   },
   {
     href: "/admin/players",
     label: "Players",
-    icon: "👤",
   },
   {
     href: "/admin/games",
     label: "Games",
-    icon: "🏀",
   },
 ];
+
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -61,8 +58,13 @@ export function AdminNav() {
         <div className="flex min-h-0 flex-1 flex-col border-r bg-card">
           {/* Logo */}
           <div className="flex h-16 items-center border-b px-6">
-            <Link href="/admin/dashboard" className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-primary">Isostat Admin</span>
+            <Link href="/admin/dashboard" className="block">
+              <span className="block font-heading text-lg font-semibold uppercase tracking-wide">
+                1v1stats
+              </span>
+              <span className="block font-heading text-xs uppercase tracking-widest text-muted-foreground">
+                Admin Panel
+              </span>
             </Link>
           </div>
 
@@ -79,26 +81,46 @@ export function AdminNav() {
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 )}
               >
-                <span className="mr-3 text-lg">{link.icon}</span>
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* User Info & Logout */}
+          {/* User Info & Actions */}
           <div className="border-t p-4">
             {userEmail && (
               <div className="mb-3 truncate text-xs text-muted-foreground">
                 {userEmail}
               </div>
             )}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="w-full rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition hover:bg-destructive/90"
-            >
-              Logout
-            </button>
+            <div className="flex gap-2">
+              <Link
+                href="/"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-foreground"
+              >
+                View Site
+                <svg
+                  className="h-3 w-3"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition hover:bg-destructive/90"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </aside>
@@ -106,8 +128,13 @@ export function AdminNav() {
       {/* Mobile Header */}
       <div className="md:hidden">
         <div className="flex h-16 items-center justify-between border-b bg-card px-4">
-          <Link href="/admin/dashboard" className="flex items-center space-x-2">
-            <span className="text-lg font-bold text-primary">Isostat Admin</span>
+          <Link href="/admin/dashboard" className="block">
+            <span className="block font-heading text-base font-semibold uppercase tracking-wide">
+              1v1stats
+            </span>
+            <span className="block font-heading text-[10px] uppercase tracking-widest text-muted-foreground">
+              Admin Panel
+            </span>
           </Link>
           <button
             type="button"
@@ -149,24 +176,45 @@ export function AdminNav() {
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   )}
                 >
-                  <span className="mr-3 text-lg">{link.icon}</span>
                   {link.label}
                 </Link>
               ))}
             </nav>
-            <div className="mt-4 border-t pt-4">
+            <div className="mt-4 border-t px-3 pt-4">
               {userEmail && (
-                <div className="mb-3 truncate px-3 text-xs text-muted-foreground">
+                <div className="mb-3 truncate text-xs text-muted-foreground">
                   {userEmail}
                 </div>
               )}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition hover:bg-destructive/90"
-              >
-                Logout
-              </button>
+              <div className="flex gap-2">
+                <Link
+                  href="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-foreground"
+                >
+                  View Site
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex-1 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition hover:bg-destructive/90"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         )}
