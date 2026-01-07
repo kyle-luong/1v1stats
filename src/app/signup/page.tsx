@@ -6,17 +6,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
 
 export default function SignupPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const createUser = trpc.user.create.useMutation();
@@ -24,6 +23,7 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccessMessage("");
     setIsLoading(true);
 
     try {
@@ -34,6 +34,8 @@ export default function SignupPage() {
         email,
         password,
         options: {
+          // Send verification email and redirect back to login after confirmation
+          emailRedirectTo: `${window.location.origin}/login`,
           data: {
             name,
           },
@@ -64,9 +66,11 @@ export default function SignupPage() {
         // Continue anyway - user is authenticated, though profile might be missing
       }
 
-      // Redirect to home
-      router.push("/");
-      router.refresh();
+      // Show verification instructions instead of redirect
+      setSuccessMessage(
+        `Verification link sent to ${email}. Please check your inbox (and spam folder), verify your email, then sign in with the same credentials.`
+      );
+      setIsLoading(false);
     } catch (_err) {
       setError("An error occurred. Please try again.");
       setIsLoading(false);
@@ -93,7 +97,7 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
-                disabled={isLoading}
+                disabled={isLoading || !!successMessage}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
@@ -108,7 +112,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                disabled={isLoading}
+                disabled={isLoading || !!successMessage}
                 required
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               />
@@ -124,7 +128,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                disabled={isLoading}
+                disabled={isLoading || !!successMessage}
                 required
                 minLength={6}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -138,9 +142,15 @@ export default function SignupPage() {
               </div>
             )}
 
+            {successMessage && (
+              <div className="rounded-md bg-emerald-500/10 p-3 text-sm text-emerald-600">
+                {successMessage}
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !!successMessage}
               className="h-10 w-full rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Creating account..." : "Create Account"}
