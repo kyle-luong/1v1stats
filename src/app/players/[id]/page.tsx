@@ -4,15 +4,68 @@
  * Wikipedia-style comprehensive player profiles
  */
 
-"use client";
+import type { Metadata } from 'next';
+import { use } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { db } from '@/server/db';
+import { Navbar } from '@/components/layout/Navbar';
+import { trpc } from '@/lib/trpc/Provider';
+import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
-import { use } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Navbar } from "@/components/layout/Navbar";
-import { trpc } from "@/lib/trpc/Provider";
-import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  
+  try {
+    const player = await db.player.findUnique({
+      where: { id },
+      include: {
+        gamesAsPlayer1: true,
+        gamesAsPlayer2: true,
+      },
+    });
+
+    if (!player) {
+      return {
+        title: 'Player Not Found - 1v1stats',
+        description: 'The player you are looking for does not exist.',
+      };
+    }
+
+    const allGames = [...player.gamesAsPlayer1, ...player.gamesAsPlayer2];
+    const { wins, losses } = calculateWinLoss(allGames, player.id);
+    const totalPoints = calculateTotalPoints(allGames, player.id);
+    const gamesPlayed = allGames.length;
+    const ppg = calculatePPG(totalPoints, gamesPlayed);
+
+    const description = `${player.name} - ${wins}-${losses} record, ${totalPoints} total points, ${ppg} PPG. View complete 1v1 basketball stats, career highlights, and game history.`;
+    
+    return {
+      title: `${player.name} - 1v1 Basketball Stats & Profile`,
+      description,
+      openGraph: {
+        title: `${player.name} | 1v1stats`,
+        description,
+        type: 'profile',
+        images: player.imageUrl ? [{ url: player.imageUrl, alt: player.name }] : [],
+      },
+      twitter: {
+        card: 'summary',
+        title: `${player.name} | 1v1stats`,
+        description,
+        images: player.imageUrl ? [player.imageUrl] : [],
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'Player Profile - 1v1stats',
+      description: 'View player statistics and game history',
+    };
+  }
+}
+
+'use client';
 
 function calculateAge(birthDate: Date): number {
   const today = new Date();

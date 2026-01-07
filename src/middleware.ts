@@ -28,11 +28,13 @@ export async function middleware(request: NextRequest) {
   // We'll validate isAdmin in the database when they access admin pages
   // (can't do DB queries in middleware)
 
-  // Redirect to home if accessing auth routes while logged in
+  // If user has session cookie but database was reset, allow them to access auth routes
+  // This handles the case where Supabase session exists but User record doesn't
+  // The signup/login pages will handle creating the User record
   if (isAuthRoute && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+    // Don't redirect - let them access signup/login
+    // The page will check if User exists and create if needed
+    return supabaseResponse;
   }
 
   return supabaseResponse;
