@@ -43,3 +43,6 @@ next-env.d.ts
 
 # vitest
 .vitest
+
+# local scripts
+.local.sh
