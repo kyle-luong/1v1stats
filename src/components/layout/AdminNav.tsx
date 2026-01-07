@@ -17,6 +17,10 @@ const adminLinks = [
     label: "Dashboard",
   },
   {
+    href: "/admin/channels",
+    label: "Channels",
+  },
+  {
     href: "/admin/submissions",
     label: "Submissions",
   },
@@ -27,6 +31,10 @@ const adminLinks = [
   {
     href: "/admin/games",
     label: "Games",
+  },
+  {
+    href: "/admin/feedback",
+    label: "Feedback",
   },
 ];
 

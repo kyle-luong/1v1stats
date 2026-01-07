@@ -11,6 +11,8 @@ import { statRouter } from "./routers/stat";
 import { rulesetRouter } from "./routers/ruleset";
 import { userRouter } from "./routers/user";
 import { siteStatsRouter } from "./routers/siteStats";
+import { channelRouter } from "./routers/channel";
+import { feedbackRouter } from "./routers/feedback";
 
 /**
  * Main application router
@@ -24,6 +26,8 @@ export const appRouter = createTRPCRouter({
   ruleset: rulesetRouter,
   user: userRouter,
   siteStats: siteStatsRouter,
+  channel: channelRouter,
+  feedback: feedbackRouter,
 });
 
 export type AppRouter = typeof appRouter;

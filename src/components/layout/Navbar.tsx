@@ -4,7 +4,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -12,18 +12,35 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, User, LogOut } from "lucide-react";
+import { trpc } from "@/lib/trpc/client";
+import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
   { href: "/", label: "HOME" },
   { href: "/games", label: "GAMES" },
   { href: "/players", label: "PLAYERS" },
+  { href: "/videos", label: "VIDEOS" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { data: user } = trpc.user.getMe.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  };
 
   const isContributeActive =
     pathname === "/submit" || pathname === "/donate" || pathname === "/feedback";
@@ -31,60 +48,112 @@ export function Navbar() {
   return (
     <nav className="border-b bg-card">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="font-heading text-2xl font-semibold tracking-wide text-foreground">
-              1V1STATS
-            </span>
-          </Link>
+        <div className="relative flex h-16 items-center justify-between">
+          {/* Left: Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="flex items-center">
+              <span className="font-heading text-2xl font-semibold tracking-wide text-foreground">
+                1V1STATS
+              </span>
+            </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary",
-                  pathname === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Center: Navigation Links (Absolute Centered) */}
+          <div className="hidden md:absolute md:inset-x-0 md:top-0 md:flex md:h-16 md:items-center md:justify-center md:pointer-events-none">
+            {/* Pointer events required for the links themselves */}
+            <div className="flex items-center gap-8 pointer-events-auto">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary",
+                    pathname === link.href
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
-            {/* Contribute Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  "flex items-center gap-1 font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary focus:outline-none",
-                  isContributeActive ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                CONTRIBUTE
-                <ChevronDown className="h-4 w-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem asChild>
-                  <Link href="/submit" className="w-full cursor-pointer">
-                    Submit Games
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/donate" className="w-full cursor-pointer">
-                    Donate
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/feedback" className="w-full cursor-pointer">
-                    Feedback
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {/* Contribute Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(
+                    "flex items-center gap-1 font-heading text-sm font-medium tracking-wider transition-colors hover:text-primary focus:outline-none",
+                    isContributeActive ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  CONTRIBUTE
+                  <ChevronDown className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem asChild>
+                    <Link href="/submit" className="w-full cursor-pointer">
+                      Submit Games
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/donate" className="w-full cursor-pointer">
+                      Donate
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/feedback" className="w-full cursor-pointer">
+                      Feedback
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {/* Right: Auth */}
+          <div className="hidden md:flex md:items-center md:gap-6 z-10">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 font-heading text-sm font-medium tracking-wider text-muted-foreground transition-colors hover:text-primary focus:outline-none">
+                  <User className="h-4 w-4" />
+                  {user.name || user.email?.split("@")[0]}
+                  <ChevronDown className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="w-full cursor-pointer">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  {user.isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="w-full cursor-pointer">
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="font-heading text-sm font-medium tracking-wider text-muted-foreground transition-colors hover:text-primary"
+                >
+                  LOG IN
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded bg-primary px-4 py-2 font-heading text-sm font-medium tracking-wider text-primary-foreground transition hover:bg-primary/90"
+                >
+                  SIGN UP
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -171,6 +240,24 @@ export function Navbar() {
                   )}
                 >
                   Feedback
+                </Link>
+              </div>
+
+              {/* Mobile Auth Links */}
+              <div className="border-t pt-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-2 py-2 font-heading text-sm font-medium tracking-wider text-muted-foreground transition-colors hover:text-primary"
+                >
+                  LOG IN
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mx-2 block rounded bg-primary px-4 py-2 text-center font-heading text-sm font-medium tracking-wider text-primary-foreground transition hover:bg-primary/90"
+                >
+                  SIGN UP
                 </Link>
               </div>
             </div>

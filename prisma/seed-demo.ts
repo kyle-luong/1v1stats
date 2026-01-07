@@ -149,7 +149,9 @@ async function main() {
       channelName: "The Next Chapter",
       uploadedAt: new Date("2024-03-15"),
       duration: 845,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-2",
@@ -158,7 +160,9 @@ async function main() {
       channelName: "Ballislife",
       uploadedAt: new Date("2024-04-02"),
       duration: 672,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-3",
@@ -167,7 +171,9 @@ async function main() {
       channelName: "The Next Chapter",
       uploadedAt: new Date("2024-05-10"),
       duration: 1024,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-4",
@@ -176,7 +182,9 @@ async function main() {
       channelName: "Ballislife",
       uploadedAt: new Date("2024-06-18"),
       duration: 756,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-5",
@@ -185,7 +193,9 @@ async function main() {
       channelName: "HoopState",
       uploadedAt: new Date("2024-07-22"),
       duration: 543,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-6",
@@ -194,7 +204,9 @@ async function main() {
       channelName: "The Next Chapter",
       uploadedAt: new Date("2024-08-05"),
       duration: 892,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-7",
@@ -203,7 +215,9 @@ async function main() {
       channelName: "Ballislife",
       uploadedAt: new Date("2024-09-14"),
       duration: 1156,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
     {
       youtubeId: "demo-video-8",
@@ -212,7 +226,9 @@ async function main() {
       channelName: "HoopState",
       uploadedAt: new Date("2024-10-28"),
       duration: 678,
-      status: VideoStatus.COMPLETED,
+      status: VideoStatus.APPROVED,
+      category: "ONE_V_ONE" as const,
+      isCompetitive: true,
     },
   ];
 

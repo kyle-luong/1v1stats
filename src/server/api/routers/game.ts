@@ -127,7 +127,7 @@ export const gameRouter = createTRPCRouter({
   getVideosWithoutGames: adminProcedure.query(async ({ ctx }) => {
     const videos = await ctx.db.video.findMany({
       where: {
-        status: VideoStatus.PROCESSING,
+        status: VideoStatus.PENDING,
         game: null,
       },
       orderBy: {
@@ -202,10 +202,10 @@ export const gameRouter = createTRPCRouter({
           },
         });
 
-        // Update video status to COMPLETED
+        // Update video status to APPROVED
         await tx.video.update({
           where: { id: input.videoId },
-          data: { status: VideoStatus.COMPLETED },
+          data: { status: VideoStatus.APPROVED },
         });
 
         return newGame;
@@ -315,10 +315,10 @@ export const gameRouter = createTRPCRouter({
             where: { id: game.videoId },
           });
         } else {
-          // Mark video as failed/rejected (prevents re-submission)
+          // Mark video as rejected (prevents re-submission)
           await tx.video.update({
             where: { id: game.videoId },
-            data: { status: VideoStatus.FAILED },
+            data: { status: VideoStatus.REJECTED },
           });
         }
       });

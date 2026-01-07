@@ -3,7 +3,8 @@
 //
 // Models:
 // - Player: Basketball players (can appear in multiple games)
-// - Video: YouTube videos containing 1v1 games
+// - Channel: Whitelisted YouTube channels for scraping (Phase 1.5)
+// - Video: YouTube videos with category and approval workflow
 // - Game: Individual 1v1 matchups between two players
 // - Stat: Detailed basketball statistics for each player in each game
 
@@ -42,6 +43,28 @@ model User {
   @@index([isTrustedLabeler])
 }
 
+// Channel model for Phase 1.5 - Whitelisted Channel Scraping
+// Tracks YouTube channels approved for automated video scraping
+model Channel {
+  id               String    @id @default(cuid())
+  youtubeChannelId String    @unique // YouTube channel ID (UC...)
+  name             String
+  description      String?
+  thumbnailUrl     String?
+  subscriberCount  Int?
+  isActive         Boolean   @default(true) // Whether to include in scraping
+  scrapeFrequency  String    @default("daily") // "daily" or "manual"
+  lastScrapedAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  videos Video[]
+
+  @@index([isActive])
+  @@index([lastScrapedAt])
+}
+
 model Player {
   id              String   @id @default(cuid())
   name            String   // Display name (what they go by)
@@ -74,27 +97,35 @@ model Player {
   gamesAsPlayer1 Game[] @relation("Player1")
   gamesAsPlayer2 Game[] @relation("Player2")
   stats          Stat[]
+  feedback       Feedback[]
 
   @@index([name])
 }
 
 model Video {
-  id           String       @id @default(cuid())
-  youtubeId    String       @unique // e.g., "dQw4w9WgXcQ"
+  id           String        @id @default(cuid())
+  youtubeId    String        @unique // e.g., "dQw4w9WgXcQ"
   url          String
   title        String
-  channelName  String // The Next Chapter, Ballislife, etc.
+  channelName  String        // The Next Chapter, Ballislife, etc.
   thumbnailUrl String?
-  uploadedAt   DateTime? // YouTube upload date
-  duration     Int? // seconds
-  status       VideoStatus @default(PENDING)
+  uploadedAt   DateTime?     // YouTube upload date
+  duration     Int?          // seconds
+  status       VideoStatus   @default(SCRAPED)
+  category     VideoCategory @default(UNCATEGORIZED)
+  isCompetitive Boolean      @default(false) // Only competitive 1v1s affect player stats
   processedAt  DateTime?
 
+  // Channel scraping (Phase 1.5)
+  channelId    String?       // Links to whitelisted Channel if scraped
+  channel      Channel?      @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  scrapedAt    DateTime?     // When this video was auto-scraped
+
   // Submission tracking
-  submittedById  String? // Optional: links to User if logged in
-  submittedBy    User?   @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
-  submitterEmail String? // Fallback for anonymous submissions
-  submitterNote  String? // Optional context
+  submittedById  String?     // Optional: links to User if logged in
+  submittedBy    User?       @relation("VideoSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  submitterEmail String?     // Fallback for anonymous submissions
+  submitterNote  String?     // Optional context
 
   // Submitted game info (unverified, from submitter)
   // These are required on submission but stored here until admin approves
@@ -102,23 +133,42 @@ model Video {
   submittedPlayer2Name  String?
   submittedPlayer1Score Int?
   submittedPlayer2Score Int?
+  submittedCategory     VideoCategory? // User-suggested category (for SCRAPED videos)
+  submittedIsCompetitive Boolean?       // User-suggested competitive flag
 
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
   // Relations
   game Game?
+  feedback Feedback[]
 
   @@index([channelName])
   @@index([status])
+  @@index([category])
+  @@index([channelId])
   @@index([submittedById])
 }
 
+// Video approval workflow status
 enum VideoStatus {
-  PENDING // Submitted, awaiting processing
-  PROCESSING // Currently being analyzed
-  COMPLETED // Stats entered/extracted
-  FAILED // Processing failed
+  SCRAPED  // Auto-discovered from channel, visible but uncategorized
+  PENDING  // User submitted data, awaiting admin approval
+  APPROVED // Admin approved, categorized (Game created if 1v1)
+  REJECTED // Not suitable for platform
+}
+
+// Video content category
+enum VideoCategory {
+  UNCATEGORIZED  // Not yet reviewed
+  ONE_V_ONE      // Official 1v1 (requires Game record)
+  SPAR           // Practice/spar 1v1
+  TWO_V_TWO      // 2v2 games
+  THREE_V_THREE  // 3v3 games
+  FIVE_V_FIVE    // 5v5 games
+  TAG_TEAM       // Tag team matches
+  REACTION       // Reaction/commentary videos
+  MISC           // Other content
 }
 
 model Game {
@@ -149,6 +199,7 @@ model Game {
 
   // Relations
   stats Stat[]
+  feedback Feedback[]
 
   @@index([player1Id])
   @@index([player2Id])
@@ -234,4 +285,54 @@ enum CourtType {
   INDOOR
   OUTDOOR
   UNKNOWN
+}
+
+// Feedback model for bug reports, feature requests, and data corrections
+model Feedback {
+  id          String         @id @default(cuid())
+  type        FeedbackType
+  status      FeedbackStatus @default(UNREVIEWED)
+  
+  // Content
+  title       String
+  description String         @db.Text
+  
+  // Contact info (optional)
+  email       String?
+  name        String?
+  
+  // Metadata
+  submittedAt DateTime       @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?        // User ID of admin who reviewed
+  adminNotes  String?        @db.Text
+  
+  // Relations - for data corrections to link to specific content
+  relatedVideoId  String?
+  relatedVideo    Video?   @relation(fields: [relatedVideoId], references: [id], onDelete: SetNull)
+  relatedPlayerId String?
+  relatedPlayer   Player?  @relation(fields: [relatedPlayerId], references: [id], onDelete: SetNull)
+  relatedGameId   String?
+  relatedGame     Game?    @relation(fields: [relatedGameId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([status])
+  @@index([type])
+  @@index([submittedAt])
+  @@map("feedback")
+}
+
+enum FeedbackType {
+  BUG_REPORT
+  FEATURE_REQUEST
+  DATA_CORRECTION
+  GENERAL
+}
+
+enum FeedbackStatus {
+  UNREVIEWED
+  RESOLVED
+  CLOSED
 }
