@@ -7,6 +7,8 @@ import { MetadataRoute } from 'next';
 import { db } from '@/server/db';
 import { VideoStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -56,37 +58,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Player pages
-  const players = await db.player.findMany({
-    select: { id: true, updatedAt: true },
-    orderBy: { updatedAt: 'desc' },
-  });
+  try {
+    // Player pages
+    const players = await db.player.findMany({
+      select: { id: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    });
 
-  const playerPages: MetadataRoute.Sitemap = players.map((player) => ({
-    url: `${baseUrl}/players/${player.id}`,
-    lastModified: player.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
+    const playerPages: MetadataRoute.Sitemap = players.map((player) => ({
+      url: `${baseUrl}/players/${player.id}`,
+      lastModified: player.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
 
-  // Game pages (only approved competitive games)
-  const games = await db.game.findMany({
-    where: {
-      isOfficial: true,
-      video: {
-        status: VideoStatus.APPROVED,
+    // Game pages (only approved competitive games)
+    const games = await db.game.findMany({
+      where: {
+        isOfficial: true,
+        video: {
+          status: VideoStatus.APPROVED,
+        },
       },
-    },
-    select: { id: true, updatedAt: true },
-    orderBy: { updatedAt: 'desc' },
-  });
+      select: { id: true, updatedAt: true },
+      orderBy: { updatedAt: 'desc' },
+    });
 
-  const gamePages: MetadataRoute.Sitemap = games.map((game) => ({
-    url: `${baseUrl}/games/${game.id}`,
-    lastModified: game.updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }));
+    const gamePages: MetadataRoute.Sitemap = games.map((game) => ({
+      url: `${baseUrl}/games/${game.id}`,
+      lastModified: game.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }));
 
-  return [...staticPages, ...playerPages, ...gamePages];
+    return [...staticPages, ...playerPages, ...gamePages];
+  } catch (error) {
+    console.warn('Could not load dynamic sitemap data, returning static pages only.', error);
+    return staticPages;
+  }
 }
