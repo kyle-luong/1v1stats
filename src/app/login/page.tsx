@@ -34,7 +34,15 @@ function LoginForm() {
       });
 
       if (signInError) {
-        setError(signInError.message);
+        // Provide a friendlier message for unverified emails
+        const msg = signInError.message || "Login failed";
+        if (msg.toLowerCase().includes("email not confirmed")) {
+          setError(
+            "Please verify your email before signing in. Check your inbox for the verification link."
+          );
+        } else {
+          setError(msg);
+        }
         setIsLoading(false);
         return;
       }
