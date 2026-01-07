@@ -146,10 +146,10 @@ export default function FeedbackPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Type Selector */}
               <div>
-                <label className="mb-3 block font-heading text-sm font-medium uppercase tracking-wider text-muted-foreground">
+                <span className="mb-3 block font-heading text-sm font-medium uppercase tracking-wider text-muted-foreground">
                   Feedback Type *
-                </label>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                </span>
+                <div role="radiogroup" aria-label="Feedback Type" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {feedbackTypes.map((type) => {
                     const Icon = type.icon;
                     const isSelected = selectedType === type.type;

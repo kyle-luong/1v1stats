@@ -17,6 +17,19 @@ type ViewMode = "grid" | "table";
 type SortField = "name" | "games" | "winPct" | "totalPoints" | "ppg";
 type SortDirection = "asc" | "desc";
 
+function SortIndicator({ 
+  field, 
+  currentSort, 
+  direction 
+}: { 
+  field: SortField; 
+  currentSort: SortField; 
+  direction: SortDirection;
+}) {
+  if (currentSort !== field) return null;
+  return <span className="ml-1">{direction === "asc" ? "↑" : "↓"}</span>;
+}
+
 export default function PlayersPage() {
   const [search, setSearch] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -37,7 +50,10 @@ export default function PlayersPage() {
     }
   };
 
+  // Sort logic...
   const sortedPlayers = useMemo(() => {
+    // ... same sort logic ...
+    // (keeping existing sort logic roughly same place, just removing SortIndicator definition from inside)
     if (!players) return [];
 
     const playersWithStats = players.map((player) => {
@@ -84,6 +100,8 @@ export default function PlayersPage() {
           aVal = a.ppg;
           bVal = b.ppg;
           break;
+        default:
+          break;
       }
 
       if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
@@ -91,11 +109,6 @@ export default function PlayersPage() {
       return 0;
     });
   }, [players, sortField, sortDirection]);
-
-  const SortIndicator = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null;
-    return <span className="ml-1">{sortDirection === "asc" ? "↑" : "↓"}</span>;
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -246,7 +259,7 @@ export default function PlayersPage() {
                           onClick={() => handleSort("name")}
                           className="font-heading text-xs font-medium uppercase tracking-wider hover:text-primary"
                         >
-                          Player <SortIndicator field="name" />
+                          Player <SortIndicator field="name" currentSort={sortField} direction={sortDirection} />
                         </button>
                       </th>
                       <th className="px-4 py-3 text-center">
@@ -255,7 +268,7 @@ export default function PlayersPage() {
                           onClick={() => handleSort("games")}
                           className="font-heading text-xs font-medium uppercase tracking-wider hover:text-primary"
                         >
-                          Games <SortIndicator field="games" />
+                          Games <SortIndicator field="games" currentSort={sortField} direction={sortDirection} />
                         </button>
                       </th>
                       <th className="px-4 py-3 text-center">
@@ -264,7 +277,7 @@ export default function PlayersPage() {
                           onClick={() => handleSort("winPct")}
                           className="font-heading text-xs font-medium uppercase tracking-wider hover:text-primary"
                         >
-                          Win % <SortIndicator field="winPct" />
+                          Win % <SortIndicator field="winPct" currentSort={sortField} direction={sortDirection} />
                         </button>
                       </th>
                       <th className="px-4 py-3 text-center">
@@ -273,7 +286,7 @@ export default function PlayersPage() {
                           onClick={() => handleSort("totalPoints")}
                           className="font-heading text-xs font-medium uppercase tracking-wider hover:text-primary"
                         >
-                          Points <SortIndicator field="totalPoints" />
+                          Points <SortIndicator field="totalPoints" currentSort={sortField} direction={sortDirection} />
                         </button>
                       </th>
                       <th className="px-4 py-3 text-center">
@@ -282,7 +295,7 @@ export default function PlayersPage() {
                           onClick={() => handleSort("ppg")}
                           className="font-heading text-xs font-medium uppercase tracking-wider hover:text-primary"
                         >
-                          PPG <SortIndicator field="ppg" />
+                          PPG <SortIndicator field="ppg" currentSort={sortField} direction={sortDirection} />
                         </button>
                       </th>
                     </tr>

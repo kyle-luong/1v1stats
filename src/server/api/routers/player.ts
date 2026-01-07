@@ -85,12 +85,14 @@ export const playerRouter = createTRPCRouter({
           include: {
             player1: true,
             player2: true,
+            video: true,
           },
         },
         gamesAsPlayer2: {
           include: {
             player1: true,
             player2: true,
+            video: true,
           },
         },
       },

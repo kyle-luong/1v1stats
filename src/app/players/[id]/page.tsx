@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { db } from '@/server/db';
 import { Navbar } from '@/components/layout/Navbar';
 import { trpc } from '@/lib/trpc/Provider';
-import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate } from '@/lib/utils';
+import { calculateWinLoss, calculateTotalPoints, calculatePPG, formatDate, calculateAge } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -65,18 +65,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-'use client';
 
-function calculateAge(birthDate: Date): number {
-  const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age -= 1;
-  }
-  return age;
-}
 
 export default function PlayerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

@@ -48,19 +48,7 @@ interface YouTubeVideoContentDetails {
   duration: string; // ISO 8601 format, e.g., "PT5M30S"
 }
 
-interface YouTubeSearchItem {
-  id: { videoId: string };
-  snippet: YouTubeVideoSnippet;
-}
 
-interface YouTubeSearchResponse {
-  items: YouTubeSearchItem[];
-  nextPageToken?: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-}
 
 interface YouTubePlaylistItemSnippet {
   title: string;
@@ -289,7 +277,7 @@ export async function getChannelInfo(channelId: string): Promise<ChannelInfo> {
  */
 function getUploadsPlaylistId(channelId: string): string {
   if (channelId.startsWith("UC")) {
-    return "UU" + channelId.slice(2);
+    return `UU${channelId.slice(2)}`;
   }
   throw new Error(`Invalid channel ID format: ${channelId}`);
 }
@@ -320,6 +308,7 @@ export async function getChannelVideos(
   let reachedSinceDate = false;
 
   // Pagination requires sequential fetching - each page depends on the previous pageToken
+  /* eslint-disable no-await-in-loop */
   do {
     // Build playlistItems URL
     let playlistUrl = `${YOUTUBE_API_BASE}/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=${maxResultsPerPage}&key=${apiKey}`;
@@ -328,7 +317,6 @@ export async function getChannelVideos(
       playlistUrl += `&pageToken=${pageToken}`;
     }
 
-    // eslint-disable-next-line no-await-in-loop
     const playlistResponse = await fetch(playlistUrl);
     if (!playlistResponse.ok) {
       const errorText = await playlistResponse.text();
@@ -337,41 +325,21 @@ export async function getChannelVideos(
       );
     }
 
-    // eslint-disable-next-line no-await-in-loop
     const playlistData = (await playlistResponse.json()) as YouTubePlaylistItemsResponse;
 
     if (playlistData.items.length === 0) {
       break;
     }
 
-    // Filter out items older than 'since' date if provided
-    // PlaylistItems returns videos in reverse chronological order (newest first)
-    const filteredItems = options.since
-      ? playlistData.items.filter((item) => {
-          const publishedAt = new Date(item.snippet.publishedAt);
-          if (publishedAt < options.since!) {
-            reachedSinceDate = true;
-            return false;
-          }
-          return true;
-        })
-      : playlistData.items;
-
-    if (filteredItems.length === 0) {
-      break;
-    }
-
     // Extract video IDs to fetch durations (batch fetch for efficiency)
-    const videoIds = filteredItems.map((item) => item.snippet.resourceId.videoId).join(",");
+    const videoIds = playlistData.items.map((item) => item.snippet.resourceId.videoId).join(",");
 
     // Fetch video details for durations
     const detailsUrl = `${YOUTUBE_API_BASE}/videos?part=contentDetails&id=${videoIds}&key=${apiKey}`;
-    // eslint-disable-next-line no-await-in-loop
     const detailsResponse = await fetch(detailsUrl);
 
     let durationsMap: Map<string, number> = new Map();
     if (detailsResponse.ok) {
-      // eslint-disable-next-line no-await-in-loop
       const detailsData = (await detailsResponse.json()) as YouTubeVideoListResponse;
       durationsMap = new Map(
         detailsData.items.map((item) => [item.id, parseDuration(item.contentDetails.duration)])
@@ -379,22 +347,31 @@ export async function getChannelVideos(
     }
 
     // Combine playlist items with durations
-    const videos = filteredItems.map((item) => ({
-      youtubeId: item.snippet.resourceId.videoId,
-      title: decodeHtmlEntities(item.snippet.title),
-      description: item.snippet.description,
-      channelName: decodeHtmlEntities(item.snippet.channelTitle),
-      thumbnailUrl:
-        item.snippet.thumbnails.maxres?.url ??
-        item.snippet.thumbnails.high?.url ??
-        item.snippet.thumbnails.medium?.url ??
-        item.snippet.thumbnails.default?.url ??
-        "",
-      uploadedAt: new Date(item.snippet.publishedAt),
-      duration: durationsMap.get(item.snippet.resourceId.videoId) ?? 0,
-    }));
+    // Use standard for loop to avoid no-restricted-syntax (for-of) and no-loop-func (forEach)
+    for (let i = 0; i < playlistData.items.length; i += 1) {
+      const item = playlistData.items[i];
+      const vidId = item.snippet.resourceId.videoId;
+      const pubDate = new Date(item.snippet.publishedAt);
+      
+      if (options.since && pubDate < options.since) {
+        reachedSinceDate = true;
+      }
 
-    allVideos.push(...videos);
+      allVideos.push({
+        youtubeId: vidId,
+        title: decodeHtmlEntities(item.snippet.title),
+        description: item.snippet.description,
+        channelName: decodeHtmlEntities(item.snippet.channelTitle),
+        thumbnailUrl:
+          item.snippet.thumbnails.maxres?.url ??
+          item.snippet.thumbnails.high?.url ??
+          item.snippet.thumbnails.medium?.url ??
+          item.snippet.thumbnails.default?.url ??
+          "",
+        uploadedAt: pubDate,
+        duration: durationsMap.get(vidId) ?? 0,
+      });
+    }
 
     // Stop if we've reached videos older than the 'since' date
     if (reachedSinceDate) {
@@ -404,6 +381,7 @@ export async function getChannelVideos(
     pageToken = playlistData.nextPageToken;
     pageCount += 1;
   } while (pageToken && pageCount < maxPages);
+  /* eslint-enable no-await-in-loop */
 
   return allVideos;
 }

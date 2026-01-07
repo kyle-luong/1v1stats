@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
 import { extractYoutubeId, isValidYoutubeUrl } from "@/lib/youtube";
@@ -40,6 +40,15 @@ interface SelectedVideo {
 }
 
 export default function SubmitVideoPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {/* eslint-disable-next-line @typescript-eslint/no-use-before-define */}
+      <SubmitVideoPageContent />
+    </Suspense>
+  );
+}
+
+function SubmitVideoPageContent() {
   const searchParams = useSearchParams();
   const preselectedVideoId = searchParams.get("video");
 

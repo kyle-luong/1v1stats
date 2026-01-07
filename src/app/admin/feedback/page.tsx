@@ -125,9 +125,10 @@ export default function AdminFeedbackPage() {
 
       {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Status</label>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="status-filter" className="text-xs font-medium text-muted-foreground">Status</label>
           <select
+            id="status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as FeedbackStatus | "ALL")}
             className="rounded border border-input bg-background px-3 py-2 text-sm"
@@ -139,9 +140,10 @@ export default function AdminFeedbackPage() {
           </select>
         </div>
 
-        <div>
-          <label className="mb-1 block text-xs font-medium text-muted-foreground">Type</label>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="type-filter" className="text-xs font-medium text-muted-foreground">Type</label>
           <select
+            id="type-filter"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value as FeedbackType | "ALL")}
             className="rounded border border-input bg-background px-3 py-2 text-sm"
@@ -250,14 +252,26 @@ export default function AdminFeedbackPage() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           onClick={() => setSelectedFeedback(null)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSelectedFeedback(null);
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
         >
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border bg-card p-6"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feedback-title"
+            tabIndex={-1}
           >
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h2 className="text-2xl font-semibold">{selectedItem.title}</h2>
+                <h2 id="feedback-title" className="text-2xl font-semibold">{selectedItem.title}</h2>
                 <div className="mt-2 flex gap-2">
                   <span className={`inline-block rounded px-2 py-1 text-xs font-medium ${TYPE_COLORS[selectedItem.type]}`}>
                     {selectedItem.type.replace(/_/g, " ")}
